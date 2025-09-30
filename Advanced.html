@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Home Solution </title>
+<style>
+  body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f9fafb; margin:0; padding:30px; color:#111; }
+  .container { max-width:900px; margin:auto; background:#fff; padding:25px 35px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+  h1,h2 { font-weight:700; color:#1f2937; margin-bottom:15px; }
+  label { display:block; margin-bottom:6px; font-weight:600; color:#4b5563; }
+  input, select, button, textarea { font-size:16px; }
+  input, select, textarea { width:100%; padding:12px 14px; border-radius:8px; border:1px solid #d1d5db; margin-bottom:6px; box-sizing:border-box; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#3b82f6; }
+  .input-error { border-color:#dc2626; }
+  .error-message { font-size:12px; color:#dc2626; margin-top:-10px; margin-bottom:10px; }
+  table { width:100%; border-collapse:collapse; margin-top:12px; }
+  th,td { padding:12px 10px; border:1px solid #e5e7eb; text-align:center; font-size:15px; }
+  th { background:#f3f4f6; font-weight:700; color:#374151; }
+  .right { text-align:right; }
+  button { background:#3b82f6; border:none; border-radius:8px; color:#fff; font-weight:600; padding:12px 18px; cursor:pointer; font-size:16px; transition:background-color 0.3s ease; margin-top:10px; margin-right:12px; }
+  button:hover:enabled { background:#2563eb; }
+  button:disabled { background:#9ca3af; cursor:not-allowed; }
+  .btn-secondary { background:#6b7280; }
+  #invoiceSummary { margin-top:20px; white-space:pre-wrap; font-family:monospace; }
+  #qrCode, #reviewQrCode { margin-top:16px; max-width:150px; margin-left:auto; }
+  .section-review { background-color: #f3f4f6; padding: 15px; border-radius: 10px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="container" role="main" aria-label="Invoice application">
+  <h1>Smart Home Solution </h1>
+
+  <section aria-labelledby="customerSectionLabel">
+    <h2 id="customerSectionLabel">Customer Details</h2>
+    <label for="customerName">Customer Name</label>
+    <input id="customerName" placeholder="e.g. John Doe" autocomplete="name" required />
+    <label for="customerEmail">Customer Email (optional)</label>
+    <input id="customerEmail" placeholder="email@example.com" autocomplete="email" />
+    <div id="emailError" class="error-message" aria-live="polite" style="display:none;"></div>
+    <label for="customerPhone">Customer Phone</label>
+    <input id="customerPhone" placeholder="+1234567890" autocomplete="tel" />
+    <div id="phoneError" class="error-message" aria-live="polite" style="display:none;"></div>
+    <label for="issuerName">Salesperson / Issuer Name</label>
+    <input id="issuerName" placeholder="Name of salesperson or issuer" autocomplete="name" required />
+  </section>
+
+  <section aria-labelledby="itemsSectionLabel">
+    <h2 id="itemsSectionLabel">Invoice Items</h2>
+    <table id="itemsTable" role="grid" aria-label="Invoice Items Table">
+      <thead><tr><th>Description</th><th>Quantity</th><th>Unit Price (UGX)</th><th>Tax (18%)</th><th>Line Total (UGX)</th><th>Remove</th></tr></thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr><td colspan="4" class="right">Subtotal:</td><td id="subtotal" class="right">0.00</td><td></td></tr>
+        <tr><td colspan="4" class="right">VAT (18%):</td><td id="vat" class="right">0.00</td><td></td></tr>
+        <tr style="font-weight:bold;"><td colspan="4" class="right">Total:</td><td id="total" class="right">0.00</td><td></td></tr>
+      </tfoot>
+    </table>
+    <button type="button" id="addItemBtn" aria-label="Add item to invoice">+ Add Item</button>
+  </section>
+
+  <section aria-labelledby="paymentSectionLabel">
+    <h2 id="paymentSectionLabel">Payment Details</h2>
+    <label for="amountPaid">Amount Paid (UGX)</label>
+    <input id="amountPaid" type="number" min="0" step="0.01" placeholder="0.00" />
+    <div>
+      <strong>Outstanding Balance (UGX): </strong>
+      <span id="balance">0.00</span>
+    </div>
+  </section>
+
+  <section class="actions" aria-label="Action buttons">
+    <button id="generateInvoiceBtn" type="button">Generate EFRIS Invoice Receipt</button>
+    <button id="generateQuotationBtn" type="button">Generate Quotation</button>
+    <button id="saveInvoiceBtn" type="button" disabled>Save Invoice/Quotation</button>
+    <button id="printPdfBtn" type="button" disabled>Print PDF</button>
+    <button id="clearFormBtn" type="button" class="btn-secondary">Clear Form</button>
+  </section>
+
+  <section id="invoiceSummary" aria-live="polite"></section>
+  <div id="qrCode" aria-label="Invoice/Quotation QR code"></div>
+
+  <section class="section-review" aria-labelledby="reviewSectionLabel">
+    <h2 id="reviewSectionLabel">Review Saved Invoice / Receipt / Quotation</h2>
+    <label for="searchInvoiceNumber">Search by Number</label>
+    <input id="searchInvoiceNumber" placeholder="e.g. SHS250900000001 or QTN250900000001 or Fiscal Doc No" />
+    <button id="searchInvoiceBtn" type="button">Search</button>
+    <pre id="reviewInvoiceSummary" style="white-space: pre-wrap; font-family: monospace; margin-top: 10px;"></pre>
+    <div id="reviewQrCode" aria-label="Review Invoice QR code"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.2/dexie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const URA_TIN = '1019781622';
+  const db = new Dexie('InvoiceDB');
+  db.version(1).stores({
+    invoices: '++id,number,fiscalDocNo,type,customer,issuerName,email,phone,date,total'
+  });
+
+  const inputs = {
+    customerName: document.getElementById('customerName'),
+    customerEmail: document.getElementById('customerEmail'),
+    customerPhone: document.getElementById('customerPhone'),
+    amountPaid: document.getElementById('amountPaid'),
+    issuerName: document.getElementById('issuerName'),
+    searchInvoiceNumber: document.getElementById('searchInvoiceNumber')
+  };
+
+  const emailErrorDiv = document.getElementById('emailError');
+  const phoneErrorDiv = document.getElementById('phoneError');
+  const itemsTableBody = document.querySelector("#itemsTable tbody");
+  const subtotalEl = document.getElementById('subtotal');
+  const vatEl = document.getElementById('vat');
+  const totalEl = document.getElementById('total');
+  const invoiceSummary = document.getElementById('invoiceSummary');
+  const qrCodeDiv = document.getElementById('qrCode');
+  const balanceEl = document.getElementById('balance');
+
+  const addItemBtn = document.getElementById('addItemBtn');
+  const generateInvoiceBtn = document.getElementById('generateInvoiceBtn');
+  const generateQuotationBtn = document.getElementById('generateQuotationBtn');
+  const saveBtn = document.getElementById('saveInvoiceBtn');
+  const printBtn = document.getElementById('printPdfBtn');
+  const clearFormBtn = document.getElementById('clearFormBtn');
+  const searchBtn = document.getElementById('searchInvoiceBtn');
+  const reviewInvoiceSummary = document.getElementById('reviewInvoiceSummary');
+  const reviewQrCodeDiv = document.getElementById('reviewQrCode');
+
+  let currentInvoiceNumber = '';
+  let currentFiscalDocNo = '';
+  let currentVerificationCode = '';
+  let currentQuotationNumber = '';
+  let invoiceCounter = 0;
+  let quotationCounter = 0;
+
+  function formatNumber(num) {
+    return Number(num).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function genInvoiceNumber() {
+    const d = new Date();
+    invoiceCounter++;
+    return 'SHS' + d.getFullYear().toString().slice(-2) + (d.getMonth()+1).toString().padStart(2,'0') + invoiceCounter.toString().padStart(6,'0');
+  }
+
+  function genQuotationNumber() {
+    const d = new Date();
+    quotationCounter++;
+    return 'QTN' + d.getFullYear().toString().slice(-2) + (d.getMonth()+1).toString().padStart(2,'0') + quotationCounter.toString().padStart(6,'0');
+  }
+
+  function genFiscalDocNo() {
+    return Math.random().toString(36).substring(2,12).toUpperCase();
+  }
+
+  function genVerificationCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let s = '';
+    for(let i=0; i<12; i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+    return s;
+  }
+
+  // Email validation
+  inputs.customerEmail.addEventListener('input', () => {
+    const email = inputs.customerEmail.value.trim();
+    if (email === '' || validateEmail(email)) {
+      emailErrorDiv.style.display = 'none';
+      inputs.customerEmail.classList.remove('input-error');
+    } else {
+      emailErrorDiv.style.display = 'block';
+      emailErrorDiv.textContent = 'Please enter a valid email address.';
+      inputs.customerEmail.classList.add('input-error');
+    }
+    validateFormButtons();
+  });
+
+  // Phone validation
+  inputs.customerPhone.addEventListener('input', () => {
+    const phone = inputs.customerPhone.value.trim();
+    if (phone === '' || validatePhone(phone)) {
+      phoneErrorDiv.style.display = 'none';
+      inputs.customerPhone.classList.remove('input-error');
+    } else {
+      phoneErrorDiv.style.display = 'block';
+      phoneErrorDiv.textContent = 'Phone must be in international format e.g., +14155552671.';
+      inputs.customerPhone.classList.add('input-error');
+    }
+    validateFormButtons();
+  });
+
+  function validateEmail(email) {
+    if (!email) return true;
+    const regex = /^[a-z0-9!#$%&'*+/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i;
+    return regex.test(email);
+  }
+
+  function validatePhone(phone) {
+    if (!phone) return false;
+    const regex = /^\+[1-9]\d{1,14}$/;
+    return regex.test(phone);
+  }
+
+  function validateForm() {
+    if (!inputs.customerName.value.trim()) return false;
+    if (!inputs.issuerName.value.trim()) return false;
+    if (itemsTableBody.rows.length === 0) return false;
+    for (const row of itemsTableBody.rows) {
+      if (!row.querySelector('.desc').value.trim()) return false;
+    }
+    if (!validateEmail(inputs.customerEmail.value.trim())) return false;
+    if (!validatePhone(inputs.customerPhone.value.trim())) return false;
+    if (inputs.amountPaid.value) {
+      const paid = parseFloat(inputs.amountPaid.value);
+      if (isNaN(paid) || paid < 0) return false;
+    }
+    return true;
+  }
+
+  function validateFormButtons() {
+    const isValid = validateForm();
+    generateInvoiceBtn.disabled = !isValid;
+    generateQuotationBtn.disabled = !isValid;
+    saveBtn.disabled = true; // enabled after generate
+    printBtn.disabled = true;
+  }
+
+  function clearForm() {
+    inputs.customerName.value = '';
+    inputs.customerEmail.value = '';
+    inputs.customerPhone.value = '';
+    inputs.amountPaid.value = '';
+    inputs.issuerName.value = '';
+    emailErrorDiv.style.display = 'none';
+    phoneErrorDiv.style.display = 'none';
+    inputs.customerEmail.classList.remove('input-error');
+    inputs.customerPhone.classList.remove('input-error');
+    itemsTableBody.innerHTML = '';
+    createItemRow();
+    invoiceSummary.textContent = '';
+    qrCodeDiv.innerHTML = '';
+    saveBtn.disabled = true;
+    printBtn.disabled = true;
+    balanceEl.textContent = '0.00';
+    currentInvoiceNumber = '';
+    currentFiscalDocNo = '';
+    currentVerificationCode = '';
+    currentQuotationNumber = '';
+  }
+
+  function createItemRow(desc= '', qty=1, price=0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="desc" aria-label="Item description" value="${desc}" required></td>
+      <td><input type="number" class="qty" value="${qty}" min="1" required></td>
+      <td><input type="number" class="price" value="${price}" min="0" step="0.01" required></td>
+      <td class="tax right">0.00</td>
+      <td class="lineTotal right">0.00</td>
+      <td><button class="removeBtn" type="button" aria-label="Remove this item">×</button></td>
+    `;
+    tr.querySelectorAll('input').forEach(input => input.addEventListener('input', () => {
+      updateTotals();
+      validateFormButtons();
+    }));
+    tr.querySelector('.removeBtn').addEventListener('click', () => {
+      tr.remove();
+      updateTotals();
+      validateFormButtons();
+    });
+    itemsTableBody.appendChild(tr);
+    updateTotals();
+    validateFormButtons();
+  }
+
+  function updateTotals() {
+    let subtotal = 0;
+    Array.from(itemsTableBody.rows).forEach(row => {
+      const qty = parseFloat(row.querySelector('.qty').value) || 0;
+      const price = parseFloat(row.querySelector('.price').value) || 0;
+      const tax = qty * price * 0.18;
+      const lineTotal = qty * price + tax;
+      row.querySelector('.tax').textContent = formatNumber(tax);
+      row.querySelector('.lineTotal').textContent = formatNumber(lineTotal);
+      subtotal += qty * price;
+    });
+    subtotalEl.textContent = formatNumber(subtotal);
+    vatEl.textContent = formatNumber(subtotal * 0.18);
+    totalEl.textContent = formatNumber(subtotal * 1.18);
+
+    updateBalance();
+  }
+
+  function updateBalance() {
+    const total = parseFloat(totalEl.textContent.replace(/,/g, '')) || 0;
+    const paid = parseFloat(inputs.amountPaid.value) || 0;
+    const balance = Math.max(total - paid, 0);
+    balanceEl.textContent = formatNumber(balance);
+  }
+
+  function generateInvoiceText() {
+    const d = new Date();
+    currentInvoiceNumber = genInvoiceNumber();
+    currentFiscalDocNo = genFiscalDocNo();
+    currentVerificationCode = genVerificationCode();
+    currentQuotationNumber = ''; // invoice context
+
+    let summary = `Smart Home Solution \n------------------------------------\n`;
+    summary += `URA TIN: ${URA_TIN}\n`;
+    summary += `Invoice Number: ${currentInvoiceNumber}\n`;
+    summary += `Fiscal Document No: ${currentFiscalDocNo}\n`;
+    summary += `Verification Code: ${currentVerificationCode}\n`;
+    summary += `Date: ${d.toLocaleString()}\n\n`;
+    summary += `Customer: ${inputs.customerName.value}\n`;
+    summary += `Salesperson / Issuer: ${inputs.issuerName.value}\n`;
+    if(inputs.customerEmail.value) summary += `Email: ${inputs.customerEmail.value}\n`;
+    if(inputs.customerPhone.value) summary += `Phone: ${inputs.customerPhone.value}\n\nItems:\n`;
+
+    let subtotal = 0;
+    Array.from(itemsTableBody.rows).forEach((row, i) => {
+      const desc = row.querySelector('.desc').value;
+      const qty = parseFloat(row.querySelector('.qty').value);
+      const price = parseFloat(row.querySelector('.price').value);
+      const tax = qty * price * 0.18;
+      const lineTotal = qty * price + tax;
+      summary += `${i+1}. ${desc} - Qty: ${qty} x ${formatNumber(price)} = ${formatNumber(lineTotal)} UGX\n`;
+      subtotal += qty * price;
+    });
+    const taxTotal = subtotal * 0.18;
+    const grandTotal = subtotal + taxTotal;
+
+    const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
+    const balance = Math.max(grandTotal - amountPaid, 0);
+
+    summary += `\nSubtotal: ${formatNumber(subtotal)} UGX\n`;
+    summary += `VAT (18%): ${formatNumber(taxTotal)} UGX\n`;
+    summary += `Total: ${formatNumber(grandTotal)} UGX\n`;
+    summary += `Amount Paid: ${formatNumber(amountPaid)} UGX\n`;
+    summary += `Outstanding Balance: ${formatNumber(balance)} UGX`;
+
+    invoiceSummary.textContent = summary;
+    qrCodeDiv.innerHTML = '';
+    QRCode.toCanvas(qrCodeDiv, JSON.stringify({
+      invoiceNumber: currentInvoiceNumber,
+      fiscalDocNo: currentFiscalDocNo,
+      verificationCode: currentVerificationCode,
+      tin: URA_TIN,
+      date: d.toISOString(),
+      amount: grandTotal.toFixed(2)
+    }), { width: 150 }, err => { if(err) console.error(err); });
+
+    saveBtn.disabled = false;
+    printBtn.disabled = false;
+  }
+
+  function generateQuotationText() {
+    if (!validateForm()) {
+      alert('Please check form inputs before generating quotation.');
+      return;
+    }
+    const d = new Date();
+    currentQuotationNumber = genQuotationNumber();
+    currentInvoiceNumber = '';
+    currentFiscalDocNo = '';
+    currentVerificationCode = '';
+
+    let summary = `Smart Home Solution \n------------------------------------\n`;
+    summary += `Quotation Number: ${currentQuotationNumber}\n`;
+    summary += `Date: ${d.toLocaleString()}\n\n`;
+    summary += `Customer: ${inputs.customerName.value}\n`;
+    summary += `Salesperson / Issuer: ${inputs.issuerName.value}\n`;
+    if(inputs.customerEmail.value) summary += `Email: ${inputs.customerEmail.value}\n`;
+    if(inputs.customerPhone.value) summary += `Phone: ${inputs.customerPhone.value}\n\nItems:\n`;
+
+    let subtotal = 0;
+    Array.from(itemsTableBody.rows).forEach((row, i) => {
+      const desc = row.querySelector('.desc').value;
+      const qty = parseFloat(row.querySelector('.qty').value);
+      const price = parseFloat(row.querySelector('.price').value);
+      const tax = qty * price * 0.18;
+      const lineTotal = qty * price + tax;
+      summary += `${i+1}. ${desc} - Qty: ${qty} x ${formatNumber(price)} = ${formatNumber(lineTotal)} UGX\n`;
+      subtotal += qty * price;
+    });
+    const taxTotal = subtotal * 0.18;
+    const grandTotal = subtotal + taxTotal;
+
+    summary += `\nSubtotal: ${formatNumber(subtotal)} UGX\n`;
+    summary += `VAT (18%): ${formatNumber(taxTotal)} UGX\n`;
+    summary += `Total: ${formatNumber(grandTotal)} UGX\n`;
+
+    invoiceSummary.textContent = summary;
+    qrCodeDiv.innerHTML = '';
+    QRCode.toCanvas(qrCodeDiv, JSON.stringify({
+      quotationNumber: currentQuotationNumber,
+      tin: URA_TIN,
+      date: d.toISOString(),
+      amount: grandTotal.toFixed(2)
+    }), { width: 150 }, err => { if(err) console.error(err); });
+
+    saveBtn.disabled = false;
+    printBtn.disabled = false;
+  }
+
+  async function saveInvoice() {
+    if (!validateForm()) return;
+
+    const isQuotation = currentQuotationNumber !== '';
+    const number = isQuotation ? currentQuotationNumber : currentInvoiceNumber;
+
+    const items = Array.from(itemsTableBody.rows).map(row => ({
+      description: row.querySelector('.desc').value,
+      quantity: parseFloat(row.querySelector('.qty').value),
+      unitPrice: parseFloat(row.querySelector('.price').value),
+      tax: parseFloat(row.querySelector('.tax').textContent),
+      lineTotal: parseFloat(row.querySelector('.lineTotal').textContent)
+    }));
+
+    const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
+    const subtotal = parseFloat(subtotalEl.textContent.replace(/,/g, ''));
+    const tax = parseFloat(vatEl.textContent.replace(/,/g, ''));
+    const total = parseFloat(totalEl.textContent.replace(/,/g, ''));
+    const balance = Math.max(total - amountPaid, 0);
+
+    try {
+      await db.invoices.add({
+        number,
+        fiscalDocNo: isQuotation ? '' : currentFiscalDocNo,
+        verificationCode: isQuotation ? '' : currentVerificationCode,
+        type: isQuotation ? 'quotation' : 'invoice',
+        customer: inputs.customerName.value.trim(),
+        issuerName: inputs.issuerName.value.trim(),
+        email: inputs.customerEmail.value.trim(),
+        phone: inputs.customerPhone.value.trim(),
+        date: new Date().toISOString(),
+        items,
+        subtotal,
+        tax,
+        total,
+        amountPaid: isQuotation ? 0 : amountPaid,
+        outstandingBalance: isQuotation ? total : balance,
+        status: isQuotation ? 'Quotation' : 'Pending'
+      });
+      alert(isQuotation ? "Quotation saved successfully." : "Invoice saved successfully.");
+      clearForm();
+    } catch (e) {
+      alert("Failed to save: " + e);
+    }
+  }
+
+  function printDocument() {
+    const { jsPDF } = window.jspdf;
+    if (!currentInvoiceNumber && !currentQuotationNumber) {
+      alert('Please generate an invoice or quotation first.');
+      return;
+    }
+    const doc = new jsPDF();
+    const d = new Date();
+
+    const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
+    const total = parseFloat(totalEl.textContent.replace(/,/g, '')) || 0;
+    const balance = Math.max(total - amountPaid, 0);
+
+    doc.setFontSize(16);
+    doc.text('Smart Home Solution', 10, 10);
+    doc.setFontSize(11);
+    doc.text(`URA TIN: ${URA_TIN}`, 10, 20);
+
+    let startY = 27;
+
+    if (currentInvoiceNumber) {
+      doc.text(`Invoice No: ${currentInvoiceNumber}`, 10, startY); startY += 7;
+      doc.text(`Fiscal Doc No: ${currentFiscalDocNo}`, 10, startY); startY += 7;
+      doc.text(`Verification Code: ${currentVerificationCode}`, 10, startY); startY += 7;
+    } else if (currentQuotationNumber) {
+      doc.text(`Quotation No: ${currentQuotationNumber}`, 10, startY);
+      startY += 14;
+    }
+    doc.text(`Date: ${d.toLocaleString()}`, 10, startY); startY += 7;
+
+    doc.text(`Customer: ${inputs.customerName.value}`, 10, startY); startY += 7;
+    doc.text(`Salesperson / Issuer: ${inputs.issuerName.value}`, 10, startY); startY += 7;
+
+    if (inputs.customerEmail.value) {
+      doc.text(`Email: ${inputs.customerEmail.value}`, 10, startY);
+      startY += 7;
+    }
+    if (inputs.customerPhone.value) {
+      doc.text(`Phone: ${inputs.customerPhone.value}`, 10, startY);
+      startY += 7;
+    }
+
+    if (currentInvoiceNumber) {
+      doc.text(`Amount Paid: UGX ${formatNumber(amountPaid)}`, 10, startY);
+      startY += 7;
+      doc.text(`Outstanding Balance: UGX ${formatNumber(balance)}`, 10, startY);
+      startY += 7;
+    }
+
+    const body = Array.from(itemsTableBody.rows).map(row => [
+      row.querySelector('.desc').value,
+      row.querySelector('.qty').value,
+      row.querySelector('.price').value,
+      row.querySelector('.tax').textContent,
+      row.querySelector('.lineTotal').textContent
+    ]);
+
+    doc.autoTable({
+      head: [['Description','Qty','Unit Price','Tax (18%)','Line Total']],
+      body,
+      startY: startY + 5
+    });
+
+    const finalY = doc.lastAutoTable.finalY || (startY + 5);
+
+    doc.text(`Subtotal: UGX ${subtotalEl.textContent}`, 140, finalY + 10);
+    doc.text(`Tax (18%): UGX ${vatEl.textContent}`, 140, finalY + 20);
+    doc.setFontSize(14);
+    doc.text(`Total: UGX ${totalEl.textContent}`, 140, finalY + 30);
+
+    const qrCanvas = document.createElement('canvas');
+    QRCode.toCanvas(qrCanvas, JSON.stringify({
+      invoiceNumber: currentInvoiceNumber || '',
+      quotationNumber: currentQuotationNumber || '',
+      fiscalDocNo: currentFiscalDocNo || '',
+      verificationCode: currentVerificationCode || '',
+      tin: URA_TIN,
+      date: d.toISOString(),
+      amount: totalEl.textContent.replace(/,/g, '')
+    }), { width: 80 }, err => {
+      if (err) console.error(err);
+      else {
+        const imgData = qrCanvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 10, finalY + 10, 30, 30);
+        const filename = (currentInvoiceNumber || currentQuotationNumber) + '_Document.pdf';
+        doc.save(filename);
+      }
+    });
+  }
+
+  async function searchInvoice() {
+    const val = inputs.searchInvoiceNumber.value.trim().toUpperCase();
+    if (!val) {
+      reviewInvoiceSummary.textContent = 'Please enter an invoice or quotation number or fiscal document number.';
+      reviewQrCodeDiv.innerHTML = '';
+      return;
+    }
+    try {
+      let found = await db.invoices
+        .where('number').equalsIgnoreCase(val)
+        .or('fiscalDocNo').equalsIgnoreCase(val)
+        .toArray();
+
+      if (found.length === 0) {
+        reviewInvoiceSummary.textContent = `No invoice or quotation found matching "${val}".`;
+        reviewQrCodeDiv.innerHTML = '';
+        return;
+      }
+      const inv = found[0];
+      let summary = `Smart Home Solution \n------------------------------------\n`;
+      summary += `URA TIN: ${URA_TIN}\n`;
+      summary += (inv.type === 'quotation') ? `Quotation Number: ${inv.number}\n` : `Invoice Number: ${inv.number}\n`;
+      if (inv.fiscalDocNo) summary += `Fiscal Document No: ${inv.fiscalDocNo}\n`;
+      if (inv.verificationCode) summary += `Verification Code: ${inv.verificationCode}\n`;
+      summary += `Date: ${new Date(inv.date).toLocaleString()}\n\n`;
+      summary += `Customer: ${inv.customer}\n`;
+      summary += `Salesperson / Issuer: ${inv.issuerName || ''}\n`;
+      if (inv.email) summary += `Email: ${inv.email}\n`;
+      if (inv.phone) summary += `Phone: ${inv.phone}\n\nItems:\n`;
+      inv.items.forEach((it, i) => {
+        summary += `${i+1}. ${it.description} - Qty: ${it.quantity} x UGX ${formatNumber(it.unitPrice)} = UGX ${formatNumber(it.lineTotal)}\n`;
+      });
+      summary += `\nSubtotal: UGX ${formatNumber(inv.subtotal)}\n`;
+      summary += `VAT (18%): UGX ${formatNumber(inv.tax)}\n`;
+      summary += `Total: UGX ${formatNumber(inv.total)}\n`;
+      if(inv.type === 'invoice') {
+        summary += `Amount Paid: UGX ${formatNumber(inv.amountPaid || 0)}\n`;
+        summary += `Outstanding Balance: UGX ${formatNumber(inv.outstandingBalance || 0)}`;
+      }
+      reviewInvoiceSummary.textContent = summary;
+
+      reviewQrCodeDiv.innerHTML = '';
+      QRCode.toCanvas(reviewQrCodeDiv, JSON.stringify({
+        invoiceNumber: (inv.type === 'invoice') ? inv.number : '',
+        quotationNumber: (inv.type === 'quotation') ? inv.number : '',
+        fiscalDocNo: inv.fiscalDocNo,
+        verificationCode: inv.verificationCode,
+        tin: URA_TIN,
+        date: new Date(inv.date).toISOString(),
+        amount: inv.total.toFixed(2)
+      }), { width: 150 }, err => { if(err) console.error(err); });
+    } catch (e) {
+      reviewInvoiceSummary.textContent = 'Error searching documents: ' + e;
+      reviewQrCodeDiv.innerHTML = '';
+    }
+  }
+
+  addItemBtn.addEventListener('click', () => createItemRow());
+  generateInvoiceBtn.addEventListener('click', () => {
+    if(validateForm()) generateInvoiceText();
+    else alert('Please check form inputs before generating invoice.');
+  });
+  generateQuotationBtn.addEventListener('click', () => {
+    generateQuotationText();
+  });
+  saveBtn.addEventListener('click', saveInvoice);
+  printBtn.addEventListener('click', printDocument);
+  clearFormBtn.addEventListener('click', clearForm);
+  inputs.amountPaid.addEventListener('input', () => { updateBalance(); validateFormButtons(); });
+  searchBtn.addEventListener('click', searchInvoice);
+
+  clearForm();
+});
+</script>
+</body>
+</html>
