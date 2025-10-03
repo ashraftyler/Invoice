@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 <title>Smart Home Solution - Invoice System</title>
 <style>
-  /* Your existing CSS styles */
   * { box-sizing: border-box; }
   body { 
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
@@ -252,20 +251,6 @@
   .status-overdue { background: #fee2e2; color: #991b1b; }
   .status-quotation { background: #e0e7ff; color: #3730a3; }
   
-  .loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
   .discount-row {
     display: flex;
     gap: 10px;
@@ -290,16 +275,13 @@
     <a href="#" class="settings-link" id="openSettings">⚙️ Settings</a>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs" role="tablist" aria-label="Invoice System Tabs">
     <button class="tab active" data-tab="create" role="tab" aria-selected="true" aria-controls="create-tab" id="tab-create">Create Invoice</button>
     <button class="tab" data-tab="manage" role="tab" aria-selected="false" aria-controls="manage-tab" id="tab-manage">Manage Invoices</button>
     <button class="tab" data-tab="dashboard" role="tab" aria-selected="false" aria-controls="dashboard-tab" id="tab-dashboard">Dashboard</button>
   </div>
 
-  <!-- Create Invoice Tab -->
   <div class="tab-content active" id="create-tab" role="tabpanel" aria-labelledby="tab-create" tabindex="0">
-    <!-- Customer Details -->
     <section class="section" aria-label="Customer Details">
       <h2>Customer Details</h2>
       <div class="form-row">
@@ -343,7 +325,6 @@
       </div>
     </section>
 
-    <!-- Invoice Items -->
     <section class="section" aria-label="Invoice Items">
       <h2>Invoice Items</h2>
       <table id="itemsTable" role="grid" aria-label="Invoice Items Table">
@@ -389,7 +370,6 @@
       </div>
     </section>
 
-    <!-- Payment & Notes -->
     <section class="section" aria-label="Payment and Notes">
       <h2>Payment & Notes</h2>
       <div class="form-row">
@@ -422,7 +402,6 @@
     <div id="qrCode" aria-label="Invoice QR Code"></div>
   </div>
 
-  <!-- Manage Invoices Tab -->
   <div class="tab-content" id="manage-tab" role="tabpanel" aria-labelledby="tab-manage" tabindex="0">
     <section class="section">
       <h2>Search & Manage Documents</h2>
@@ -477,7 +456,6 @@
     </section>
   </div>
 
-  <!-- Dashboard Tab -->
   <div class="tab-content" id="dashboard-tab" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
     <section class="section" aria-label="Business Overview">
       <h2>Business Overview</h2>
@@ -508,7 +486,6 @@
   </div>
 </div>
 
-<!-- Settings Modal -->
 <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsModalLabel">
   <div class="modal-content">
     <div class="modal-header">
@@ -545,15 +522,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize IndexedDB with Dexie
   const db = new Dexie('InvoiceDB');
-  db.version(2).stores({
-    invoices: '++id,number,fiscalDocNo,type,customer,issuerName,email,phone,date,total,status',
-    settings: 'key,value',
-    counters: 'type,count'
+  db.version(3).stores({
+    invoices: '++id,number,fiscalDocNo,type,customer,issuerName,email,phone,date,dueDate,total,status,*tags',
+    settings: 'key',
+    counters: 'type',
+    customers: '++id,name,*phone,*email,lastTransaction',
+    auditLog: '++id,documentId,action,timestamp,userId'
+  }).upgrade(tx => {
+    return tx.table('invoices').toCollection().modify(invoice => {
+      if (!invoice.tags) invoice.tags = [];
+      if (!invoice.lastModified) invoice.lastModified = invoice.date || new Date();
+    });
   });
 
-  // Settings object and load/update UI
   let settings = {
     companyName: 'Smart Home Solution',
     uraTin: '1019781622',
@@ -604,7 +586,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Tabs switch with ARIA updates
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => {
@@ -621,7 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Cached inputs
   const inputs = {
     customerName: document.getElementById('customerName'),
     customerEmail: document.getElementById('customerEmail'),
@@ -656,7 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const addItemBtn = document.getElementById('addItemBtn');
   const exportCsvBtn = document.getElementById('exportCsvBtn');
 
-  // Manage tab elements
   const invoiceListContainer = document.getElementById('invoiceListContainer');
   const filterStatus = document.getElementById('filterStatus');
   const dateFrom = document.getElementById('dateFrom');
@@ -674,19 +653,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentDocument = null;
   let editingDocumentId = null;
 
-  /** Utility: Email validation */
   function isValidEmail(email) {
     if (!email) return false;
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email.toLowerCase());
   }
-  /** Utility: Phone validation */
   function isValidPhone(phone) {
     if (!phone) return false;
     const re = /^\+?\d{7,15}$/;
     return re.test(phone.trim());
   }
-  /** Utility: Check if a contact method is valid */
   function isValidContact(phone, email) {
     if (!phone && !email) return false;
     if (phone && !isValidPhone(phone)) return false;
@@ -694,7 +670,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  /** Show inline error messages for contact fields */
   function validateContact() {
     let valid = true;
     const phoneVal = inputs.customerPhone.value.trim();
@@ -721,18 +696,15 @@ document.addEventListener('DOMContentLoaded', () => {
         emailErrorDiv.style.display = 'none';
         emailErrorDiv.textContent = '';
       }
-      // Even if phone is invalid but email is valid, this is allowed
       if (!phoneVal && (emailVal && isValidEmail(emailVal))) {
         phoneErrorDiv.style.display = 'none';
       }
     }
     return valid;
   }
-  // Validate on input events
   inputs.customerPhone.addEventListener('input', validateContact);
   inputs.customerEmail.addEventListener('input', validateContact);
 
-  // Invoice items helper functions
   function createItemRow(desc = '', qty = 1, price = 0, taxRate = 0) {
     const tr = document.createElement('tr');
     const createCell = (value, type = 'input', props = {}) => {
@@ -754,19 +726,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return td;
       }
     };
-    // Description
     tr.appendChild(createCell(desc, 'input', { ariaLabel: 'Item Description' }));
-    // Qty
     tr.appendChild(createCell(qty, 'input', { inputType: 'number', min: '1', step: '1', ariaLabel: 'Quantity' }));
-    // Unit Price
     tr.appendChild(createCell(price, 'input', { inputType: 'number', min: '0', step: '0.01', ariaLabel: 'Unit Price' }));
-    // VAT Rate
     tr.appendChild(createCell(taxRate, 'input', { inputType: 'number', min: '0', step: '0.01', ariaLabel: 'VAT Rate' }));
-    // VAT Amount (calculated)
     tr.appendChild(createCell('0.00', 'text'));
-    // Line Total (calculated)
     tr.appendChild(createCell('0.00', 'text'));
-    // Remove button
     const remTd = document.createElement('td');
     const remButton = document.createElement('button');
     remButton.textContent = '×';
@@ -780,7 +745,6 @@ document.addEventListener('DOMContentLoaded', () => {
     remTd.appendChild(remButton);
     tr.appendChild(remTd);
 
-    // Input change event to recalculate
     const inputsInRow = tr.querySelectorAll('input');
     inputsInRow.forEach(i => {
       i.addEventListener('input', () => {
@@ -826,12 +790,10 @@ document.addEventListener('DOMContentLoaded', () => {
     vatEl.textContent = tax.toFixed(2);
     totalEl.textContent = grand.toFixed(2);
     const amountPaidNum = Number(inputs.amountPaid.value) || 0;
-    // Update balance displayed
     const balanceNum = grand - amountPaidNum;
     balanceEl.textContent = balanceNum.toFixed(2) + ' UGX';
   }
 
-  // Add item row
   function addItem(desc = '', qty = 1, price = 0, taxRate = 0) {
     const row = createItemRow(desc, qty, price, taxRate);
     itemsTableBody.appendChild(row);
@@ -840,7 +802,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   addItemBtn.addEventListener('click', () => addItem());
 
-  // Clear form for new invoice
   function clearForm() {
     editingDocumentId = null;
     currentDocument = null;
@@ -867,23 +828,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   clearFormBtn.addEventListener('click', clearForm);
 
-  /** Generates a new invoice number with prefix SHS + year + month + incremental counter */
   async function genInvoiceNumber() {
     const d = new Date();
     const count = await incrementCounter('invoice');
     return 'SHS' + d.getFullYear().toString().slice(-2) + (d.getMonth()+1).toString().padStart(2, '0') + count.toString().padStart(6, '0');
   }
-  /** Generates a new quotation number with prefix QTN + year + month + incremental counter */
   async function genQuotationNumber() {
     const d = new Date();
     const count = await incrementCounter('quotation');
     return 'QTN' + d.getFullYear().toString().slice(-2) + (d.getMonth()+1).toString().padStart(2, '0') + count.toString().padStart(6, '0');
   }
-  /** Generates a random fiscal doc number */
   function genFiscalDocNo() {
     return 'FDN' + Math.random().toString(36).substring(2, 12).toUpperCase();
   }
-  /** Gets current date in yyyy-mm-dd and sets dueDate input */
   function setTodayDate() {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -893,7 +850,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   setTodayDate();
 
-  // Item equality check for duplicate prevention
   function itemsAreEqual(itemsA, itemsB) {
     if (itemsA.length !== itemsB.length) return false;
     const sortedA = [...itemsA].sort((a,b) => a.description.localeCompare(b.description));
@@ -912,7 +868,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  /** Determines payment status based on amount paid and total */
   function getPaymentStatus(amountPaid, total, dueDateStr) {
     let status = 'pending';
     const today = new Date();
@@ -923,7 +878,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return status;
   }
 
-  /** Generates document text summary for display */
   function generateSummaryText(doc) {
     let summary = `Document Number: ${doc.number}\nFiscal Document No: ${doc.fiscalDocNo}\nType: ${doc.type}\nCustomer: ${doc.customer}\nEmail: ${doc.email || '-'}\nPhone: ${doc.phone || '-'}\nIssuer: ${doc.issuerName}\nPayment Method: ${doc.paymentMethod || '-'}\nDue Date: ${doc.dueDate || '-'}\nStatus: ${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}\nDate: ${new Date(doc.date).toLocaleDateString()}\n\nItems:\n`;
     doc.items.forEach((item, i) => {
@@ -935,7 +889,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return summary;
   }
 
-  /** Updates UI summary and QR code for a document */
   function updateSummaryAndQRCode(doc) {
     const text = generateSummaryText(doc);
     invoiceSummary.textContent = text;
@@ -945,7 +898,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /** Validate entire form before generating invoice/quotation */
   function validateForm() {
     if (!inputs.customerName.value.trim()) {
       alert('Customer name is required');
@@ -970,7 +922,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  /** Get current invoice items array from table */
   function getCurrentItems() {
     return Array.from(itemsTableBody.querySelectorAll('tr')).map(row => ({
       description: row.children[0].firstElementChild.value.trim(),
@@ -980,7 +931,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  /** Generate invoice or quotation document */
   async function generateDocument(isQuotation) {
     if (!validateForm()) return;
 
@@ -989,18 +939,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentItems = getCurrentItems();
 
     const allInvoices = await db.invoices.toArray();
-    // Prevent duplicate documents with same items and type
-    const duplicate = allInvoices.find(inv => {
-      if (inv.type !== (isQuotation ? 'quotation' : 'invoice')) return false;
-      return itemsAreEqual(inv.items, currentItems);
-    });
-    if (duplicate) {
-      alert(`An ${isQuotation ? 'quotation' : 'invoice'} with the same items already exists (Document Number: ${duplicate.number}). Duplicate not allowed.`);
-      return;
+    // Only check for duplicates when creating NEW documents (not when editing)
+    if (!editingDocumentId) {
+      const duplicate = allInvoices.find(inv => {
+        if (inv.type !== (isQuotation ? 'quotation' : 'invoice')) return false;
+        return itemsAreEqual(inv.items, currentItems);
+      });
+      if (duplicate) {
+        alert(`A ${isQuotation ? 'quotation' : 'n invoice'} with the same items already exists (Document Number: ${duplicate.number}). Click Edit on that document to update payment status.`);
+        return;
+      }
     }
 
-    const number = isQuotation ? await genQuotationNumber() : await genInvoiceNumber();
-    const fiscalDocNo = genFiscalDocNo();
+    const number = editingDocumentId ? currentDocument.number : (isQuotation ? await genQuotationNumber() : await genInvoiceNumber());
+    const fiscalDocNo = editingDocumentId ? currentDocument.fiscalDocNo : genFiscalDocNo();
     const type = isQuotation ? 'quotation' : 'invoice';
 
     const subtotal = parseFloat(subtotalEl.textContent);
@@ -1028,11 +980,10 @@ document.addEventListener('DOMContentLoaded', () => {
       balance,
       notes: inputs.notes.value.trim(),
       status,
-      date: new Date()
+      date: editingDocumentId ? currentDocument.date : new Date()
     };
 
     currentDocument = doc;
-    editingDocumentId = null;
     saveInvoiceBtn.disabled = false;
     printPdfBtn.disabled = false;
     emailBtn.disabled = !doc.email;
@@ -1041,53 +992,278 @@ document.addEventListener('DOMContentLoaded', () => {
   generateInvoiceBtn.addEventListener('click', () => generateDocument(false));
   generateQuotationBtn.addEventListener('click', () => generateDocument(true));
 
-  /** Save current document to IndexedDB */
   async function saveCurrentDocument() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
       return;
     }
     try {
+      const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
+      const total = parseFloat(totalEl.textContent);
+      const balance = total - amountPaid;
+      const status = getPaymentStatus(amountPaid, total, inputs.dueDate.value);
+      
+      currentDocument.customer = inputs.customerName.value.trim();
+      currentDocument.email = inputs.customerEmail.value.trim();
+      currentDocument.phone = inputs.customerPhone.value.trim();
+      currentDocument.issuerName = inputs.issuerName.value.trim();
+      currentDocument.paymentMethod = inputs.paymentMethod.value;
+      currentDocument.dueDate = inputs.dueDate.value;
+      currentDocument.amountPaid = amountPaid;
+      currentDocument.balance = balance;
+      currentDocument.status = status;
+      currentDocument.notes = inputs.notes.value.trim();
+      currentDocument.items = getCurrentItems();
+      currentDocument.subtotal = parseFloat(subtotalEl.textContent);
+      currentDocument.totalTax = parseFloat(vatEl.textContent);
+      currentDocument.total = total;
+      currentDocument.lastModified = new Date();
+      
       if (editingDocumentId) {
-        // Update existing invoice
-        currentDocument.date = new Date();
         await db.invoices.update(editingDocumentId, currentDocument);
-        alert('Document updated successfully.');
+        
+        // Log audit trail for edits
+        await db.auditLog.add({
+          documentId: editingDocumentId,
+          action: `Updated - Status changed to ${status}`,
+          timestamp: new Date(),
+          userId: currentDocument.issuerName
+        });
+        
+        alert('Document updated successfully!\nNew Status: ' + status.charAt(0).toUpperCase() + status.slice(1));
       } else {
-        // Add new invoice
-        await db.invoices.add(currentDocument);
+        currentDocument.date = new Date();
+        const docId = await db.invoices.add(currentDocument);
+        
+        // Log audit trail for new documents
+        await db.auditLog.add({
+          documentId: docId,
+          action: 'Created',
+          timestamp: new Date(),
+          userId: currentDocument.issuerName
+        });
+        
         alert('Document saved successfully!');
       }
+      
+      // Save/Update customer data for autocomplete
+      const existingCustomer = await db.customers.where('name').equals(currentDocument.customer).first();
+      if (existingCustomer) {
+        await db.customers.update(existingCustomer.id, {
+          phone: currentDocument.phone,
+          email: currentDocument.email,
+          lastTransaction: new Date()
+        });
+      } else {
+        await db.customers.add({
+          name: currentDocument.customer,
+          phone: currentDocument.phone,
+          email: currentDocument.email,
+          lastTransaction: new Date()
+        });
+      }
+      
       saveInvoiceBtn.disabled = true;
       printPdfBtn.disabled = true;
       emailBtn.disabled = true;
       clearForm();
       loadAllInvoices();
       updateDashboard();
+      await loadCustomerAutocomplete();
     } catch (e) {
       alert('Error saving document: ' + e);
     }
   }
   saveInvoiceBtn.addEventListener('click', saveCurrentDocument);
 
-  /** Print current invoice or quotation */
   function printInvoice() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
       return;
     }
-    const printWindow = window.open('', 'PRINT', 'height=600,width=800');
-    printWindow.document.write('<html><head><title>Invoice</title></head><body>');
-    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + invoiceSummary.textContent + '</pre>');
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    let yPos = 20;
+    
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text(settings.companyName, 105, yPos, { align: 'center' });
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    if (settings.companyAddress) {
+      doc.text(settings.companyAddress, 105, yPos, { align: 'center' });
+      yPos += 5;
+    }
+    if (settings.companyPhone || settings.companyEmail) {
+      const contactLine = [settings.companyPhone, settings.companyEmail].filter(Boolean).join(' | ');
+      doc.text(contactLine, 105, yPos, { align: 'center' });
+      yPos += 5;
+    }
+    if (settings.uraTin) {
+      doc.text('TIN: ' + settings.uraTin, 105, yPos, { align: 'center' });
+      yPos += 10;
+    } else {
+      yPos += 5;
+    }
+    
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    const docTitle = currentDocument.type === 'quotation' ? 'QUOTATION' : 'INVOICE';
+    doc.text(docTitle, 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${docTitle} #: ${currentDocument.number}`, 14, yPos);
+    yPos += 5;
+    doc.text(`Fiscal Doc No: ${currentDocument.fiscalDocNo}`, 14, yPos);
+    yPos += 5;
+    doc.text(`Date: ${new Date(currentDocument.date).toLocaleDateString()}`, 14, yPos);
+    if (currentDocument.dueDate) {
+      yPos += 5;
+      doc.text(`Due Date: ${currentDocument.dueDate}`, 14, yPos);
+    }
+    yPos += 10;
+    
+    const leftCol = 14;
+    const rightCol = 110;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text('BILL TO:', leftCol, yPos);
+    doc.text('ISSUED BY:', rightCol, yPos);
+    yPos += 6;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(currentDocument.customer, leftCol, yPos);
+    doc.text(currentDocument.issuerName, rightCol, yPos);
+    yPos += 5;
+    
+    if (currentDocument.phone) {
+      doc.text(`Phone: ${currentDocument.phone}`, leftCol, yPos);
+    }
+    yPos += 5;
+    
+    if (currentDocument.email) {
+      doc.text(`Email: ${currentDocument.email}`, leftCol, yPos);
+      yPos += 5;
+    }
+    
+    if (currentDocument.paymentMethod) {
+      doc.text(`Payment Method: ${currentDocument.paymentMethod}`, leftCol, yPos);
+      yPos += 5;
+    }
+    
+    yPos += 5;
+    
+    const tableData = currentDocument.items.map(item => {
+      const vatAmount = (item.quantity * item.unitPrice * item.taxRate / 100);
+      const lineTotal = (item.quantity * item.unitPrice + vatAmount);
+      return [
+        item.description,
+        item.quantity.toString(),
+        'UGX ' + item.unitPrice.toFixed(2),
+        item.taxRate.toFixed(1) + '%',
+        'UGX ' + vatAmount.toFixed(2),
+        'UGX ' + lineTotal.toFixed(2)
+      ];
+    });
+    
+    doc.autoTable({
+      startY: yPos,
+      head: [['Description', 'Qty', 'Unit Price', 'VAT Rate', 'VAT Amount', 'Total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [102, 126, 234], 
+        fontSize: 10,
+        fontStyle: 'bold'
+      },
+      bodyStyles: { 
+        fontSize: 10
+      },
+      columnStyles: {
+        0: { cellWidth: 60 },
+        1: { cellWidth: 15, halign: 'center' },
+        2: { cellWidth: 30, halign: 'right' },
+        3: { cellWidth: 20, halign: 'center' },
+        4: { cellWidth: 30, halign: 'right' },
+        5: { cellWidth: 35, halign: 'right' }
+      }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    const totalsX = 140;
+    
+    doc.setFontSize(10);
+    doc.text('Subtotal:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.subtotal.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 6;
+    
+    const discountVal = Number(inputs.discountValue.value) || 0;
+    if (discountVal > 0) {
+      const discountAmount = inputs.discountType.value === 'percent' 
+        ? (currentDocument.subtotal * discountVal / 100)
+        : discountVal;
+      const discountLabel = inputs.discountType.value === 'percent' 
+        ? `Discount (${discountVal}%):`
+        : 'Discount:';
+      doc.text(discountLabel, totalsX, yPos, { align: 'right' });
+      doc.text('UGX ' + discountAmount.toFixed(2), 196, yPos, { align: 'right' });
+      yPos += 6;
+    }
+    
+    doc.text('Total VAT:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.totalTax.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 8;
+    
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('GRAND TOTAL:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.total.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Amount Paid:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.amountPaid.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 6;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text('Balance Due:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.balance.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 10;
+    
+    doc.setFontSize(11);
+    const statusText = 'Status: ' + currentDocument.status.charAt(0).toUpperCase() + currentDocument.status.slice(1);
+    doc.text(statusText, 14, yPos);
+    yPos += 10;
+    
+    if (currentDocument.notes && currentDocument.notes.trim()) {
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('Notes:', 14, yPos);
+      yPos += 5;
+      doc.setFont(undefined, 'normal');
+      const splitNotes = doc.splitTextToSize(currentDocument.notes, 180);
+      doc.text(splitNotes, 14, yPos);
+      yPos += (splitNotes.length * 5);
+    }
+    
+    if (yPos < 270) {
+      yPos = 270;
+    }
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'italic');
+    doc.text('Thank you for your business!', 105, yPos, { align: 'center' });
+    
+    doc.save(`${currentDocument.number}.pdf`);
   }
   printPdfBtn.addEventListener('click', printInvoice);
 
-  /** Email current invoice or quotation */
   function emailInvoice() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
@@ -1104,7 +1280,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   emailBtn.addEventListener('click', emailInvoice);
 
-  /** Export items to CSV */
   exportCsvBtn.addEventListener('click', () => {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
@@ -1114,7 +1289,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = currentDocument.items.map(item => {
       const vatAmount = (item.quantity * item.unitPrice * item.taxRate / 100).toFixed(2);
       const lineTotal = (item.quantity * item.unitPrice + parseFloat(vatAmount)).toFixed(2);
-      // Escape commas and quotes in description for CSV
       const escapedDesc = `"${item.description.replace(/"/g, '""')}"`;
       return [escapedDesc, item.quantity, item.unitPrice.toFixed(2), item.taxRate.toFixed(2), vatAmount, lineTotal];
     });
@@ -1128,7 +1302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  // Invoice / Quotation number counters in IndexedDB
   async function getCounter(type) {
     const counter = await db.counters.get(type);
     return counter ? counter.count : 0;
@@ -1140,14 +1313,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return newCount;
   }
 
-  /** Load all invoices from DB and display in manage tab */
   async function loadAllInvoices() {
     const allInvoices = await db.invoices.toArray();
     displayInvoices(allInvoices);
-    reviewSection.style.display = 'none'; // Hide review
+    reviewSection.style.display = 'none';
   }
 
-  /** Filter invoices by search and filters */
   function matchesFilter(invoice, searchTerm, statusFilter, fromDate, toDate) {
     const term = searchTerm.toLowerCase();
     const invoiceDate = new Date(invoice.date);
@@ -1166,7 +1337,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return matchesTerm && matchesStatus && matchesDate;
   }
 
-  /** Display invoice list in manage tab */
   function displayInvoices(invoices) {
     invoiceListContainer.innerHTML = '';
     if (invoices.length === 0) {
@@ -1200,7 +1370,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Search invoices button
   searchInvoiceBtn.addEventListener('click', async () => {
     const searchTerm = inputs.searchInvoiceNumber.value.trim();
     const status = filterStatus.value;
@@ -1212,7 +1381,6 @@ document.addEventListener('DOMContentLoaded', () => {
     reviewSection.style.display = 'none';
   });
 
-  // Clear search filters button
   clearSearchBtn.addEventListener('click', () => {
     inputs.searchInvoiceNumber.value = '';
     filterStatus.value = '';
@@ -1221,7 +1389,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllInvoices();
   });
 
-  // Show invoice detail in review section
   function showInvoiceReview(invoice) {
     reviewInvoiceSummary.textContent = generateSummaryText(invoice);
     reviewQrCode.innerHTML = '';
@@ -1236,18 +1403,16 @@ document.addEventListener('DOMContentLoaded', () => {
     emailBtn.disabled = true;
   }
 
-  // Close review section
   closeReviewBtn.addEventListener('click', () => {
     reviewSection.style.display = 'none';
     currentDocument = null;
     editingDocumentId = null;
   });
 
-  // Edit invoice details by loading into create tab form
   editInvoiceBtn.addEventListener('click', () => {
     if (!currentDocument) return;
     reviewSection.style.display = 'none';
-    clearForm(); // Reset form before loading
+    itemsTableBody.innerHTML = '';
     editingDocumentId = currentDocument.id;
     inputs.customerName.value = currentDocument.customer;
     inputs.customerEmail.value = currentDocument.email;
@@ -1259,33 +1424,195 @@ document.addEventListener('DOMContentLoaded', () => {
     inputs.notes.value = currentDocument.notes;
     inputs.discountValue.value = '0';
     inputs.discountType.value = 'percent';
-    itemsTableBody.innerHTML = '';
     currentDocument.items.forEach(item => addItem(item.description, item.quantity, item.unitPrice, item.taxRate));
     updateTotals();
+    
+    invoiceSummary.textContent = generateSummaryText(currentDocument);
+    qrCodeDiv.innerHTML = '';
+    QRCode.toCanvas(qrCodeDiv, `Invoice: ${currentDocument.number}\nTotal: UGX ${currentDocument.total.toFixed(2)}\nStatus: ${currentDocument.status}`, { width: 150 }, err => {
+      if (err) console.error(err);
+    });
+    
     saveInvoiceBtn.disabled = false;
     printPdfBtn.disabled = false;
-    emailBtn.disabled = !!inputs.customerEmail.value.trim();
-    // Switch to create tab
+    emailBtn.disabled = !currentDocument.email;
     document.getElementById('tab-create').click();
   });
 
-  // Print from review
   printReviewBtn.addEventListener('click', () => {
     if (!currentDocument) {
       alert('Select a document first.');
       return;
     }
-    const printWindow = window.open('', 'PRINT', 'height=600,width=800');
-    printWindow.document.write('<html><head><title>Invoice</title></head><body>');
-    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + reviewInvoiceSummary.textContent + '</pre>');
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    let yPos = 20;
+    
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text(settings.companyName, 105, yPos, { align: 'center' });
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    if (settings.companyAddress) {
+      doc.text(settings.companyAddress, 105, yPos, { align: 'center' });
+      yPos += 5;
+    }
+    if (settings.companyPhone || settings.companyEmail) {
+      const contactLine = [settings.companyPhone, settings.companyEmail].filter(Boolean).join(' | ');
+      doc.text(contactLine, 105, yPos, { align: 'center' });
+      yPos += 5;
+    }
+    if (settings.uraTin) {
+      doc.text('TIN: ' + settings.uraTin, 105, yPos, { align: 'center' });
+      yPos += 10;
+    } else {
+      yPos += 5;
+    }
+    
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    const docTitle = currentDocument.type === 'quotation' ? 'QUOTATION' : 'INVOICE';
+    doc.text(docTitle, 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${docTitle} #: ${currentDocument.number}`, 14, yPos);
+    yPos += 5;
+    doc.text(`Fiscal Doc No: ${currentDocument.fiscalDocNo}`, 14, yPos);
+    yPos += 5;
+    doc.text(`Date: ${new Date(currentDocument.date).toLocaleDateString()}`, 14, yPos);
+    if (currentDocument.dueDate) {
+      yPos += 5;
+      doc.text(`Due Date: ${currentDocument.dueDate}`, 14, yPos);
+    }
+    yPos += 10;
+    
+    const leftCol = 14;
+    const rightCol = 110;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text('BILL TO:', leftCol, yPos);
+    doc.text('ISSUED BY:', rightCol, yPos);
+    yPos += 6;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(currentDocument.customer, leftCol, yPos);
+    doc.text(currentDocument.issuerName, rightCol, yPos);
+    yPos += 5;
+    
+    if (currentDocument.phone) {
+      doc.text(`Phone: ${currentDocument.phone}`, leftCol, yPos);
+    }
+    yPos += 5;
+    
+    if (currentDocument.email) {
+      doc.text(`Email: ${currentDocument.email}`, leftCol, yPos);
+      yPos += 5;
+    }
+    
+    if (currentDocument.paymentMethod) {
+      doc.text(`Payment Method: ${currentDocument.paymentMethod}`, leftCol, yPos);
+      yPos += 5;
+    }
+    
+    yPos += 5;
+    
+    const tableData = currentDocument.items.map(item => {
+      const vatAmount = (item.quantity * item.unitPrice * item.taxRate / 100);
+      const lineTotal = (item.quantity * item.unitPrice + vatAmount);
+      return [
+        item.description,
+        item.quantity.toString(),
+        'UGX ' + item.unitPrice.toFixed(2),
+        item.taxRate.toFixed(1) + '%',
+        'UGX ' + vatAmount.toFixed(2),
+        'UGX ' + lineTotal.toFixed(2)
+      ];
+    });
+    
+    doc.autoTable({
+      startY: yPos,
+      head: [['Description', 'Qty', 'Unit Price', 'VAT Rate', 'VAT Amount', 'Total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [102, 126, 234], 
+        fontSize: 10,
+        fontStyle: 'bold'
+      },
+      bodyStyles: { 
+        fontSize: 10
+      },
+      columnStyles: {
+        0: { cellWidth: 60 },
+        1: { cellWidth: 15, halign: 'center' },
+        2: { cellWidth: 30, halign: 'right' },
+        3: { cellWidth: 20, halign: 'center' },
+        4: { cellWidth: 30, halign: 'right' },
+        5: { cellWidth: 35, halign: 'right' }
+      }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    const totalsX = 140;
+    
+    doc.setFontSize(10);
+    doc.text('Subtotal:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.subtotal.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 6;
+    
+    doc.text('Total VAT:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.totalTax.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 8;
+    
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('GRAND TOTAL:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.total.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Amount Paid:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.amountPaid.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 6;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text('Balance Due:', totalsX, yPos, { align: 'right' });
+    doc.text('UGX ' + currentDocument.balance.toFixed(2), 196, yPos, { align: 'right' });
+    yPos += 10;
+    
+    doc.setFontSize(11);
+    const statusText = 'Status: ' + currentDocument.status.charAt(0).toUpperCase() + currentDocument.status.slice(1);
+    doc.text(statusText, 14, yPos);
+    yPos += 10;
+    
+    if (currentDocument.notes && currentDocument.notes.trim()) {
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('Notes:', 14, yPos);
+      yPos += 5;
+      doc.setFont(undefined, 'normal');
+      const splitNotes = doc.splitTextToSize(currentDocument.notes, 180);
+      doc.text(splitNotes, 14, yPos);
+      yPos += (splitNotes.length * 5);
+    }
+    
+    if (yPos < 270) {
+      yPos = 270;
+    }
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'italic');
+    doc.text('Thank you for your business!', 105, yPos, { align: 'center' });
+    
+    doc.save(`${currentDocument.number}.pdf`);
   });
 
-  // Delete invoice from DB
   deleteInvoiceBtn.addEventListener('click', async () => {
     if (!currentDocument) return;
     if (!confirm(`Are you sure you want to delete document ${currentDocument.number}?`)) return;
@@ -1302,7 +1629,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Dashboard update function to show stats
   async function updateDashboard() {
     const allInvoices = await db.invoices.toArray();
     const paidInvoices = allInvoices.filter(inv => inv.status === 'paid' && inv.type === 'invoice');
@@ -1318,7 +1644,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('statInvoiceCount').textContent = totalInvoices.toString();
     document.getElementById('statQuotationCount').textContent = quotations.length.toString();
 
-    // Show recent 5 documents
     const sortedRecent = allInvoices.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
     const recentDiv = document.getElementById('recentInvoices');
     recentDiv.innerHTML = '';
@@ -1353,9 +1678,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initialize by loading settings and defaults
   loadSettings();
   clearForm();
+  loadCustomerAutocomplete();
+  
+  // Load customer autocomplete data
+  async function loadCustomerAutocomplete() {
+    const customers = await db.customers.orderBy('lastTransaction').reverse().toArray();
+    const datalist = document.getElementById('customerList');
+    datalist.innerHTML = '';
+    customers.forEach(customer => {
+      const option = document.createElement('option');
+      option.value = customer.name;
+      option.setAttribute('data-phone', customer.phone);
+      option.setAttribute('data-email', customer.email);
+      datalist.appendChild(option);
+    });
+  }
+  
+  // Auto-fill customer details when selected from list
+  inputs.customerName.addEventListener('input', async () => {
+    const selectedName = inputs.customerName.value;
+    const customer = await db.customers.where('name').equals(selectedName).first();
+    if (customer) {
+      inputs.customerPhone.value = customer.phone || '';
+      inputs.customerEmail.value = customer.email || '';
+      validateContact();
+    }
+  });
 
 });
 </script>
