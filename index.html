@@ -6,21 +6,21 @@
 <title>Smart Home Solution - Invoice System</title>
 <style>
   * { box-sizing: border-box; }
-  body { 
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    margin:0; 
-    padding:20px; 
-    color:#111; 
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin:0;
+    padding:20px;
+    color:#111;
     min-height: 100vh;
   }
-  .container { 
-    max-width:1200px; 
-    margin:auto; 
-    background:#fff; 
-    padding:30px 40px; 
-    border-radius:16px; 
-    box-shadow:0 20px 60px rgba(0,0,0,0.3); 
+  .container {
+    max-width:1200px;
+    margin:auto;
+    background:#fff;
+    padding:30px 40px;
+    border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
   }
   .header {
     display: flex;
@@ -38,63 +38,63 @@
   .form-group { display: flex; flex-direction: column; }
   label { display:block; margin-bottom:8px; font-weight:600; color:#4b5563; font-size:14px; }
   input, select, button, textarea { font-size:15px; }
-  input, select, textarea { 
-    width:100%; 
-    padding:12px 14px; 
-    border-radius:8px; 
-    border:2px solid #e5e7eb; 
+  input, select, textarea {
+    width:100%;
+    padding:12px 14px;
+    border-radius:8px;
+    border:2px solid #e5e7eb;
     transition: border-color 0.2s;
   }
   input:focus, select:focus, textarea:focus { outline:none; border-color:#667eea; }
   .input-error { border-color:#dc2626 !important; }
   .error-message { font-size:12px; color:#dc2626; margin-top:4px; }
   .success-message { font-size:12px; color:#059669; margin-top:4px; }
-  
+ 
   table { width:100%; border-collapse:collapse; margin-top:15px; }
   th,td { padding:12px 10px; border:1px solid #e5e7eb; text-align:center; font-size:14px; }
   th { background:#f3f4f6; font-weight:700; color:#374151; }
   .right { text-align:right; }
   td input { margin: 0; }
-  
-  button { 
-    background:#667eea; 
-    border:none; 
-    border-radius:8px; 
-    color:#fff; 
-    font-weight:600; 
-    padding:12px 20px; 
-    cursor:pointer; 
-    font-size:15px; 
-    transition:all 0.3s ease; 
-    margin-top:10px; 
-    margin-right:12px; 
+ 
+  button {
+    background:#667eea;
+    border:none;
+    border-radius:8px;
+    color:#fff;
+    font-weight:600;
+    padding:12px 20px;
+    cursor:pointer;
+    font-size:15px;
+    transition:all 0.3s ease;
+    margin-top:10px;
+    margin-right:12px;
   }
   button:hover:enabled { background:#5568d3; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
   button:disabled { background:#9ca3af; cursor:not-allowed; transform: none; }
   button:active:enabled { transform: translateY(0); }
-  
+ 
   .btn-secondary { background:#6b7280; }
   .btn-secondary:hover:enabled { background:#4b5563; }
   .btn-success { background:#059669; }
   .btn-success:hover:enabled { background:#047857; }
   .btn-danger { background:#dc2626; }
   .btn-danger:hover:enabled { background:#b91c1c; }
-  
+ 
   .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-  
-  #invoiceSummary { 
-    margin-top:25px; 
-    white-space:pre-wrap; 
-    font-family:monospace; 
-    background:#f9fafb; 
-    padding:20px; 
+ 
+  #invoiceSummary {
+    margin-top:25px;
+    white-space:pre-wrap;
+    font-family:monospace;
+    background:#f9fafb;
+    padding:20px;
     border-radius:8px;
     border: 2px solid #e5e7eb;
-    max-height: 400px; 
+    max-height: 400px;
     overflow-y: auto;
   }
-  #qrCode, #reviewQrCode { 
-    margin-top:20px; 
+  #qrCode, #reviewQrCode {
+    margin-top:20px;
     text-align: center;
   }
   #qrCode canvas, #reviewQrCode canvas {
@@ -102,15 +102,15 @@
     border-radius: 8px;
     padding: 10px;
   }
-  
-  .section { 
-    background:#f9fafb; 
-    padding:25px; 
-    border-radius:12px; 
+ 
+  .section {
+    background:#f9fafb;
+    padding:25px;
+    border-radius:12px;
     margin-bottom:25px;
     border: 1px solid #e5e7eb;
   }
-  
+ 
   .modal {
     display: none;
     position: fixed;
@@ -122,12 +122,12 @@
     background-color: rgba(0,0,0,0.5);
     animation: fadeIn 0.3s;
   }
-  
+ 
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  
+ 
   .modal-content {
     background-color: #fff;
     margin: 5% auto;
@@ -138,19 +138,19 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     animation: slideDown 0.3s;
   }
-  
+ 
   @keyframes slideDown {
     from { transform: translateY(-50px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
-  
+ 
   .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
   }
-  
+ 
   .close {
     color: #aaa;
     font-size: 28px;
@@ -158,16 +158,16 @@
     cursor: pointer;
     line-height: 1;
   }
-  
+ 
   .close:hover { color: #000; }
-  
+ 
   .tabs {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     border-bottom: 2px solid #e5e7eb;
   }
-  
+ 
   .tab {
     padding: 12px 24px;
     cursor: pointer;
@@ -179,20 +179,20 @@
     transition: all 0.3s;
     margin: 0;
   }
-  
+ 
   .tab:hover { color: #667eea; }
   .tab.active { color: #667eea; border-bottom-color: #667eea; }
-  
+ 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
-  
+ 
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 25px;
   }
-  
+ 
   .stat-card {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -200,15 +200,15 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
-  
+ 
   .stat-label { font-size: 14px; opacity: 0.9; margin-bottom: 8px; }
   .stat-value { font-size: 28px; font-weight: 700; }
-  
+ 
   .invoice-list {
     max-height: 400px;
     overflow-y: auto;
   }
-  
+ 
   .invoice-item {
     background: white;
     padding: 15px;
@@ -218,23 +218,23 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  
+ 
   .invoice-item:hover {
     border-color: #667eea;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
   }
-  
+ 
   .invoice-item-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
   }
-  
+ 
   .invoice-number { font-weight: 700; color: #667eea; }
   .invoice-date { color: #6b7280; font-size: 13px; }
   .invoice-customer { color: #374151; margin-bottom: 4px; }
   .invoice-amount { font-weight: 600; color: #059669; }
-  
+ 
   .status-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -244,23 +244,23 @@
     margin-left: 10px;
     min-width: 70px;
   }
-  
+ 
   .status-paid { background: #d1fae5; color: #065f46; }
   .status-partial { background: #dbeafe; color: #2563eb; }
   .status-pending { background: #fef3c7; color: #92400e; }
   .status-overdue { background: #fee2e2; color: #991b1b; }
   .status-quotation { background: #e0e7ff; color: #3730a3; }
-  
+ 
   .discount-row {
     display: flex;
     gap: 10px;
     align-items: flex-end;
   }
-  
+ 
   .discount-row .form-group {
     flex: 1;
   }
-  
+ 
   @media (max-width: 768px) {
     .form-row { grid-template-columns: 1fr; }
     .container { padding: 20px; }
@@ -274,13 +274,12 @@
     <h1>🏠 Smart Home Solution</h1>
     <a href="#" class="settings-link" id="openSettings">⚙️ Settings</a>
   </div>
-
   <div class="tabs" role="tablist" aria-label="Invoice System Tabs">
     <button class="tab active" data-tab="create" role="tab" aria-selected="true" aria-controls="create-tab" id="tab-create">Create Invoice</button>
+    <button class="tab" data-tab="inventory" role="tab" aria-selected="false" aria-controls="inventory-tab" id="tab-inventory">Inventory</button>
     <button class="tab" data-tab="manage" role="tab" aria-selected="false" aria-controls="manage-tab" id="tab-manage">Manage Invoices</button>
     <button class="tab" data-tab="dashboard" role="tab" aria-selected="false" aria-controls="dashboard-tab" id="tab-dashboard">Dashboard</button>
   </div>
-
   <div class="tab-content active" id="create-tab" role="tabpanel" aria-labelledby="tab-create" tabindex="0">
     <section class="section" aria-label="Customer Details">
       <h2>Customer Details</h2>
@@ -324,34 +323,39 @@
         </div>
       </div>
     </section>
-
     <section class="section" aria-label="Invoice Items">
       <h2>Invoice Items</h2>
+      <div style="margin-bottom: 15px;">
+        <label for="inventorySelect">Select from Inventory (Optional)</label>
+        <select id="inventorySelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb;">
+          <option value="">-- Select Product --</option>
+        </select>
+      </div>
       <table id="itemsTable" role="grid" aria-label="Invoice Items Table">
         <thead>
           <tr>
-            <th style="width:35%">Description</th>
+            <th style="width:30%">Description</th>
             <th style="width:10%">Qty</th>
-            <th style="width:15%">Unit Price (UGX)</th>
-            <th style="width:12%">VAT Rate %</th>
+            <th style="width:12%">Unit Price (UGX)</th>
+            <th style="width:10%">VAT Rate %</th>
             <th style="width:13%">VAT Amount (UGX)</th>
-            <th style="width:15%">Line Total (UGX)</th>
+            <th style="width:13%">Line Total (UGX)</th>
+            <th style="width:7%">Stock</th>
             <th style="width:5%">Remove</th>
           </tr>
         </thead>
         <tbody></tbody>
         <tfoot>
-          <tr><td colspan="5" class="right">Subtotal:</td><td id="subtotal" class="right">0.00</td><td></td></tr>
+          <tr><td colspan="5" class="right">Subtotal:</td><td id="subtotal" class="right">0.00</td><td colspan="2"></td></tr>
           <tr id="discountRow" style="display:none;">
             <td colspan="5" class="right">Discount (<span id="discountDisplay">0</span>):</td>
             <td id="discountAmount" class="right">0.00</td>
-            <td></td>
-          </tr>
-          <tr><td colspan="5" class="right">Total VAT:</td><td id="vat" class="right">0.00</td><td></td></tr>
-          <tr style="font-weight:bold; background:#f3f4f6;"><td colspan="5" class="right">Grand Total:</td><td id="total" class="right">0.00</td><td></td></tr>
+            <td colspan="2"></td></tr>
+          <tr><td colspan="5" class="right">Total VAT:</td><td id="vat" class="right">0.00</td><td colspan="2"></td></tr>
+          <tr style="font-weight:bold; background:#f3f4f6;"><td colspan="5" class="right">Grand Total:</td><td id="total" class="right">0.00</td><td colspan="2"></td></tr>
         </tfoot>
       </table>
-      
+     
       <div style="margin-top: 15px;">
         <button type="button" id="addItemBtn" aria-label="Add new invoice item row">+ Add Item</button>
         <div class="discount-row" style="margin-top: 15px; max-width: 400px;">
@@ -369,7 +373,6 @@
         </div>
       </div>
     </section>
-
     <section class="section" aria-label="Payment and Notes">
       <h2>Payment & Notes</h2>
       <div class="form-row">
@@ -387,7 +390,6 @@
         </div>
       </div>
     </section>
-
     <div class="actions">
       <button id="generateInvoiceBtn" type="button">📄 Generate Invoice</button>
       <button id="generateQuotationBtn" type="button">📋 Generate Quotation</button>
@@ -397,11 +399,56 @@
       <button id="exportCsvBtn" type="button" class="btn-secondary">📊 Export to CSV</button>
       <button id="clearFormBtn" type="button" class="btn-secondary">🗑️ Clear Form</button>
     </div>
-
     <div id="invoiceSummary" tabindex="0" aria-live="polite"></div>
     <div id="qrCode" aria-label="Invoice QR Code"></div>
   </div>
-
+  <!-- Inventory Tab -->
+  <div class="tab-content" id="inventory-tab" role="tabpanel" aria-labelledby="tab-inventory" tabindex="0">
+    <section class="section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Inventory Management</h2>
+        <button id="addInventoryBtn" type="button">➕ Add Product</button>
+      </div>
+     
+      <div class="stats-grid" style="margin-bottom: 25px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value" id="statTotalProducts">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Low Stock Items</div>
+          <div class="stat-value" id="statLowStock">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Out of Stock</div>
+          <div class="stat-value" id="statOutOfStock">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Inventory Value</div>
+          <div class="stat-value" id="statInventoryValue">0 UGX</div>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <label for="searchInventory">Search Products</label>
+          <input id="searchInventory" placeholder="Search by name, SKU, or category" />
+        </div>
+        <div class="form-group">
+          <label for="filterCategory">Filter by Category</label>
+          <select id="filterCategory">
+            <option value="">All Categories</option>
+            <option value="Smart Switches">Smart Switches</option>
+            <option value="Smart Lights">Smart Lights</option>
+            <option value="Sensors">Sensors</option>
+            <option value="Controllers">Controllers</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="inventoryListContainer" style="max-height: 500px; overflow-y: auto;"></div>
+    </section>
+  </div>
   <div class="tab-content" id="manage-tab" role="tabpanel" aria-labelledby="tab-manage" tabindex="0">
     <section class="section">
       <h2>Search & Manage Documents</h2>
@@ -437,10 +484,9 @@
         <button id="searchInvoiceBtn" type="button">🔍 Search</button>
         <button id="clearSearchBtn" type="button" class="btn-secondary">Clear Filters</button>
       </div>
-      
+     
       <div id="invoiceListContainer" class="invoice-list" tabindex="0" aria-live="polite" aria-label="List of invoices"></div>
     </section>
-
     <section class="section" id="reviewSection" style="display:none;" aria-live="polite">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h2 style="margin: 0;">Document Details</h2>
@@ -455,7 +501,6 @@
       </div>
     </section>
   </div>
-
   <div class="tab-content" id="dashboard-tab" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
     <section class="section" aria-label="Business Overview">
       <h2>Business Overview</h2>
@@ -478,14 +523,12 @@
         </div>
       </div>
     </section>
-
     <section class="section" aria-label="Recent Documents">
       <h2>Recent Documents</h2>
       <div id="recentInvoices" class="invoice-list" tabindex="0" aria-live="polite" aria-label="List of recent invoices"></div>
     </section>
   </div>
 </div>
-
 <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsModalLabel">
   <div class="modal-content">
     <div class="modal-header">
@@ -513,29 +556,128 @@
       <input id="companyEmail" type="email" placeholder="info@smarthome.com" />
     </div>
     <button id="saveSettings" class="btn-success">💾 Save Settings</button>
+    <button id="exportDataBtn" type="button" class="btn-secondary">📤 Export Data</button>
+    <input type="file" id="importDataInput" style="display:none;" />
+    <button id="importDataBtn" type="button" class="btn-secondary">📥 Import Data</button>
   </div>
 </div>
-
+<!-- Add/Edit Inventory Modal -->
+<div id="inventoryModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="inventoryModalLabel" style="margin: 0;">Add Product</h2>
+      <button aria-label="Close" class="close" id="closeInventoryModal">&times;</button>
+    </div>
+    <div class="form-group">
+      <label for="productSku">SKU / Product Code *</label>
+      <input id="productSku" placeholder="e.g., SW001" required />
+    </div>
+    <div class="form-group">
+      <label for="productName">Product Name *</label>
+      <input id="productName" placeholder="e.g., Smart Switch 2-Gang" required />
+    </div>
+    <div class="form-group">
+      <label for="productCategory">Category</label>
+      <select id="productCategory">
+        <option value="Smart Switches">Smart Switches</option>
+        <option value="Smart Lights">Smart Lights</option>
+        <option value="Sensors">Sensors</option>
+        <option value="Controllers">Controllers</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="productQuantity">Initial Quantity *</label>
+        <input id="productQuantity" type="number" min="0" value="0" required />
+      </div>
+      <div class="form-group">
+        <label for="productMinStock">Minimum Stock Level</label>
+        <input id="productMinStock" type="number" min="0" value="5" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="productCost">Unit Cost (UGX)</label>
+        <input id="productCost" type="number" min="0" step="0.01" value="0" />
+      </div>
+      <div class="form-group">
+        <label for="productPrice">Selling Price (UGX) *</label>
+        <input id="productPrice" type="number" min="0" step="0.01" value="0" required />
+      </div>
+    </div>
+    <div class="actions" style="margin-top: 20px;">
+      <button id="saveInventoryBtn" class="btn-success">💾 Save Product</button>
+      <button id="cancelInventoryBtn" class="btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Restock Modal -->
+<div id="restockModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 style="margin: 0;">Restock Product</h2>
+      <button aria-label="Close" class="close" id="closeRestockModal">&times;</button>
+    </div>
+    <div id="restockProductInfo" style="margin-bottom: 20px; padding: 15px; background: #f3f4f6; border-radius: 8px;"></div>
+    <div class="form-group">
+      <label for="restockQuantity">Quantity to Add *</label>
+      <input id="restockQuantity" type="number" min="1" value="1" required />
+    </div>
+    <div class="form-group">
+      <label for="restockNotes">Notes (Optional)</label>
+      <textarea id="restockNotes" rows="2" placeholder="e.g., Purchase Order #123"></textarea>
+    </div>
+    <div class="actions" style="margin-top: 20px;">
+      <button id="confirmRestockBtn" class="btn-success">✅ Confirm Restock</button>
+      <button id="cancelRestockBtn" class="btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.2/dexie.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+let passphrase = 'default_key';  // Use a fixed key for now - change if needed
+// Comment out the prompt/alert for smooth starts
+// let passphrase = prompt('Enter passphrase for data encryption (required for access):');
+// if (!passphrase) {
+//   alert('Passphrase required! App will not function without it.');
+//   passphrase = '';
+// }
+function encryptField(value) {
+  if (!value) return '';
+  return CryptoJS.AES.encrypt(value, passphrase).toString();
+}
+function decryptField(encryptedValue) {
+  if (!encryptedValue) return '';
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedValue, passphrase);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    alert('Decryption failed - wrong passphrase?');
+    return '';
+  }
+}
+document.addEventListener('DOMContentLoaded', async () => {
   const db = new Dexie('InvoiceDB');
-  db.version(3).stores({
+  db.version(4).stores({
     invoices: '++id,number,fiscalDocNo,type,customer,issuerName,email,phone,date,dueDate,total,status,*tags',
     settings: 'key',
     counters: 'type',
-    customers: '++id,name,*phone,*email,lastTransaction',
-    auditLog: '++id,documentId,action,timestamp,userId'
+    customers: '++id,name,phone,email,lastTransaction',
+    auditLog: '++id,documentId,action,timestamp,userId',
+    inventory: '++id,&sku,name,category,quantity,minStock,unitCost,unitPrice,lastRestocked',
+    stockMovements: '++id,inventoryId,type,quantity,reference,timestamp,userId'
   }).upgrade(tx => {
     return tx.table('invoices').toCollection().modify(invoice => {
       if (!invoice.tags) invoice.tags = [];
       if (!invoice.lastModified) invoice.lastModified = invoice.date || new Date();
     });
   });
-
   let settings = {
     companyName: 'Smart Home Solution',
     uraTin: '1019781622',
@@ -543,13 +685,11 @@ document.addEventListener('DOMContentLoaded', () => {
     companyPhone: '',
     companyEmail: ''
   };
-
   async function loadSettings() {
     const settingsData = await db.settings.toArray();
     settingsData.forEach(item => settings[item.key] = item.value);
     updateSettingsUI();
   }
-
   function updateSettingsUI() {
     document.getElementById('companyName').value = settings.companyName || '';
     document.getElementById('uraTin').value = settings.uraTin || '';
@@ -557,7 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('companyPhone').value = settings.companyPhone || '';
     document.getElementById('companyEmail').value = settings.companyEmail || '';
   }
-
   document.getElementById('saveSettings').addEventListener('click', async () => {
     settings.companyName = document.getElementById('companyName').value;
     settings.uraTin = document.getElementById('uraTin').value;
@@ -571,12 +710,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('settingsModal').style.display = 'none';
     updateDashboard();
   });
-
   document.getElementById('openSettings').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('settingsModal').style.display = 'block';
   });
-
   document.getElementById('closeSettings').addEventListener('click', () => {
     document.getElementById('settingsModal').style.display = 'none';
   });
@@ -585,7 +722,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('settingsModal').style.display = 'none';
     }
   });
-
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => {
@@ -599,9 +735,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById(tabId).classList.add('active');
       if (tab.getAttribute('data-tab') === 'dashboard') updateDashboard();
       else if (tab.getAttribute('data-tab') === 'manage') loadAllInvoices();
+      else if (tab.getAttribute('data-tab') === 'inventory') loadInventory();
     });
   });
-
   const inputs = {
     customerName: document.getElementById('customerName'),
     customerEmail: document.getElementById('customerEmail'),
@@ -615,7 +751,6 @@ document.addEventListener('DOMContentLoaded', () => {
     discountValue: document.getElementById('discountValue'),
     discountType: document.getElementById('discountType')
   };
-
   const emailErrorDiv = document.getElementById('emailError');
   const phoneErrorDiv = document.getElementById('phoneError');
   const itemsTableBody = document.querySelector("#itemsTable tbody");
@@ -635,7 +770,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearFormBtn = document.getElementById('clearFormBtn');
   const addItemBtn = document.getElementById('addItemBtn');
   const exportCsvBtn = document.getElementById('exportCsvBtn');
-
   const invoiceListContainer = document.getElementById('invoiceListContainer');
   const filterStatus = document.getElementById('filterStatus');
   const dateFrom = document.getElementById('dateFrom');
@@ -649,10 +783,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const editInvoiceBtn = document.getElementById('editInvoiceBtn');
   const printReviewBtn = document.getElementById('printReviewBtn');
   const deleteInvoiceBtn = document.getElementById('deleteInvoiceBtn');
-
+  const exportDataBtn = document.getElementById('exportDataBtn');
+  const importDataInput = document.getElementById('importDataInput');
+  const importDataBtn = document.getElementById('importDataBtn');
   let currentDocument = null;
   let editingDocumentId = null;
-
   function isValidEmail(email) {
     if (!email) return false;
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -669,7 +804,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (email && !isValidEmail(email)) return false;
     return true;
   }
-
   function validateContact() {
     let valid = true;
     const phoneVal = inputs.customerPhone.value.trim();
@@ -704,8 +838,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   inputs.customerPhone.addEventListener('input', validateContact);
   inputs.customerEmail.addEventListener('input', validateContact);
-
-  function createItemRow(desc = '', qty = 1, price = 0, taxRate = 0) {
+  function createItemRow(desc = '', qty = 1, price = 0, taxRate = 0, stock = '?') {
     const tr = document.createElement('tr');
     const createCell = (value, type = 'input', props = {}) => {
       const td = document.createElement('td');
@@ -715,6 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = value;
         if (input.type === 'number') {
             if (props.min !== undefined) input.min = props.min;
+            if (props.max !== undefined) input.max = props.max;
             if (props.step !== undefined) input.step = props.step;
         }
         input.style.width = '100%';
@@ -732,6 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tr.appendChild(createCell(taxRate, 'input', { inputType: 'number', min: '0', step: '0.01', ariaLabel: 'VAT Rate' }));
     tr.appendChild(createCell('0.00', 'text'));
     tr.appendChild(createCell('0.00', 'text'));
+    tr.appendChild(createCell(stock, 'text', { ariaLabel: 'Available Stock' }));
     const remTd = document.createElement('td');
     const remButton = document.createElement('button');
     remButton.textContent = '×';
@@ -744,7 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     remTd.appendChild(remButton);
     tr.appendChild(remTd);
-
     const inputsInRow = tr.querySelectorAll('input');
     inputsInRow.forEach(i => {
       i.addEventListener('input', () => {
@@ -752,10 +886,31 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTotals();
       });
     });
+    if (desc && !stock) {
+      updateStockForRow(tr, desc);
+    }
     return tr;
   }
-  
-  function updateItemRow(tr) {
+  async function updateStockForRow(tr, description) {
+    try {
+      const stockCell = tr.children[6];
+      stockCell.textContent = 'Loading...';
+      const item = await db.inventory.where('name').equals(description).first();
+      const stock = item ? item.quantity : 'N/A';
+      stockCell.textContent = stock;
+      const qtyInput = tr.children[1].firstElementChild;
+      qtyInput.max = stock;
+      if (Number(qtyInput.value) > stock && stock !== 'N/A') {
+        qtyInput.value = stock;
+        alert(`Stock limited to ${stock} for ${description}`);
+      }
+    } catch (e) {
+      console.error('Stock fetch error:', e);
+      tr.children[6].textContent = 'Error';
+    }
+  }
+  async function updateItemRow(tr) {
+    const descInput = tr.children[0].firstElementChild;
     const qty = Number(tr.children[1].firstElementChild.value) || 0;
     const price = Number(tr.children[2].firstElementChild.value) || 0;
     const taxRate = Number(tr.children[3].firstElementChild.value) || 0;
@@ -763,8 +918,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const lineTotal = qty * price + taxAmt;
     tr.children[4].textContent = taxAmt.toFixed(2);
     tr.children[5].textContent = lineTotal.toFixed(2);
+    if (descInput.value.trim() !== descInput.getAttribute('data-last-desc')) {
+      descInput.setAttribute('data-last-desc', descInput.value.trim());
+      await updateStockForRow(tr, descInput.value.trim());
+    }
   }
-
   function updateTotals() {
     let sub = 0, tax = 0;
     itemsTableBody.querySelectorAll('tr').forEach(tr => {
@@ -793,15 +951,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const balanceNum = grand - amountPaidNum;
     balanceEl.textContent = balanceNum.toFixed(2) + ' UGX';
   }
-
-  function addItem(desc = '', qty = 1, price = 0, taxRate = 0) {
-    const row = createItemRow(desc, qty, price, taxRate);
+  async function addItem(desc = '', qty = 1, price = 0, taxRate = 0) {
+    let stock = '?';
+    if (desc) {
+      const item = await db.inventory.where('name').equals(desc).first();
+      stock = item ? item.quantity : '?';
+    }
+    const row = createItemRow(desc, qty, price, taxRate, stock);
     itemsTableBody.appendChild(row);
     updateTotals();
   }
-
   addItemBtn.addEventListener('click', () => addItem());
-
   function clearForm() {
     editingDocumentId = null;
     currentDocument = null;
@@ -827,7 +987,6 @@ document.addEventListener('DOMContentLoaded', () => {
     validateContact();
   }
   clearFormBtn.addEventListener('click', clearForm);
-
   async function genInvoiceNumber() {
     const d = new Date();
     const count = await incrementCounter('invoice');
@@ -849,7 +1008,6 @@ document.addEventListener('DOMContentLoaded', () => {
     inputs.dueDate.value = `${yyyy}-${mm}-${dd}`;
   }
   setTodayDate();
-
   function itemsAreEqual(itemsA, itemsB) {
     if (itemsA.length !== itemsB.length) return false;
     const sortedA = [...itemsA].sort((a,b) => a.description.localeCompare(b.description));
@@ -867,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return true;
   }
-
   function getPaymentStatus(amountPaid, total, dueDateStr) {
     let status = 'pending';
     const today = new Date();
@@ -877,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (status === 'pending' && dueDate && today > dueDate) status = 'overdue';
     return status;
   }
-
   function generateSummaryText(doc) {
     let summary = `Document Number: ${doc.number}\nFiscal Document No: ${doc.fiscalDocNo}\nType: ${doc.type}\nCustomer: ${doc.customer}\nEmail: ${doc.email || '-'}\nPhone: ${doc.phone || '-'}\nIssuer: ${doc.issuerName}\nPayment Method: ${doc.paymentMethod || '-'}\nDue Date: ${doc.dueDate || '-'}\nStatus: ${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}\nDate: ${new Date(doc.date).toLocaleDateString()}\n\nItems:\n`;
     doc.items.forEach((item, i) => {
@@ -888,7 +1044,6 @@ document.addEventListener('DOMContentLoaded', () => {
     summary += `\nSubtotal: UGX ${doc.subtotal.toFixed(2)}\nTotal VAT: UGX ${doc.totalTax.toFixed(2)}\nGrand Total: UGX ${doc.total.toFixed(2)}\nAmount Paid: UGX ${doc.amountPaid.toFixed(2)}\nOutstanding Balance: UGX ${(doc.total - doc.amountPaid).toFixed(2)}\n\nNotes: \n${doc.notes || ''}`;
     return summary;
   }
-
   function updateSummaryAndQRCode(doc) {
     const text = generateSummaryText(doc);
     invoiceSummary.textContent = text;
@@ -897,7 +1052,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (err) console.error(err);
     });
   }
-
   function validateForm() {
     if (!inputs.customerName.value.trim()) {
       alert('Customer name is required');
@@ -921,7 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return true;
   }
-
   function getCurrentItems() {
     return Array.from(itemsTableBody.querySelectorAll('tr')).map(row => ({
       description: row.children[0].firstElementChild.value.trim(),
@@ -930,16 +1083,11 @@ document.addEventListener('DOMContentLoaded', () => {
       taxRate: Number(row.children[3].firstElementChild.value) || 0
     }));
   }
-
   async function generateDocument(isQuotation) {
     if (!validateForm()) return;
-
     updateTotals();
-
     const currentItems = getCurrentItems();
-
     const allInvoices = await db.invoices.toArray();
-    // Only check for duplicates when creating NEW documents (not when editing)
     if (!editingDocumentId) {
       const duplicate = allInvoices.find(inv => {
         if (inv.type !== (isQuotation ? 'quotation' : 'invoice')) return false;
@@ -950,25 +1098,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     }
-
     const number = editingDocumentId ? currentDocument.number : (isQuotation ? await genQuotationNumber() : await genInvoiceNumber());
     const fiscalDocNo = editingDocumentId ? currentDocument.fiscalDocNo : genFiscalDocNo();
     const type = isQuotation ? 'quotation' : 'invoice';
-
     const subtotal = parseFloat(subtotalEl.textContent);
     const totalTax = parseFloat(vatEl.textContent);
     const total = parseFloat(totalEl.textContent);
     const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
     const balance = total - amountPaid;
     const status = getPaymentStatus(amountPaid, total, inputs.dueDate.value);
-
     const doc = {
       number,
       fiscalDocNo,
       type,
       customer: inputs.customerName.value.trim(),
-      email: inputs.customerEmail.value.trim(),
-      phone: inputs.customerPhone.value.trim(),
+      email: encryptField(inputs.customerEmail.value.trim()),
+      phone: encryptField(inputs.customerPhone.value.trim()),
       issuerName: inputs.issuerName.value.trim(),
       paymentMethod: inputs.paymentMethod.value,
       dueDate: inputs.dueDate.value,
@@ -978,91 +1123,110 @@ document.addEventListener('DOMContentLoaded', () => {
       total,
       amountPaid,
       balance,
-      notes: inputs.notes.value.trim(),
+      notes: encryptField(inputs.notes.value.trim()),
       status,
       date: editingDocumentId ? currentDocument.date : new Date()
     };
-
-    currentDocument = doc;
+    currentDocument = {...doc, email: decryptField(doc.email), phone: decryptField(doc.phone), notes: decryptField(doc.notes)}; // Decrypt for UI
     saveInvoiceBtn.disabled = false;
     printPdfBtn.disabled = false;
     emailBtn.disabled = !doc.email;
-    updateSummaryAndQRCode(doc);
+    updateSummaryAndQRCode(currentDocument);
   }
   generateInvoiceBtn.addEventListener('click', () => generateDocument(false));
   generateQuotationBtn.addEventListener('click', () => generateDocument(true));
-
   async function saveCurrentDocument() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
       return;
     }
     try {
+      for (const item of getCurrentItems()) {
+        if (item.quantity > 0) {
+          const invItem = await db.inventory.where('name').equals(item.description).first();
+          if (invItem && invItem.quantity < item.quantity) {
+            alert(`Insufficient stock for ${item.description}! Available: ${invItem.quantity}`);
+            return;
+          }
+        }
+      }
       const amountPaid = parseFloat(inputs.amountPaid.value) || 0;
       const total = parseFloat(totalEl.textContent);
       const balance = total - amountPaid;
       const status = getPaymentStatus(amountPaid, total, inputs.dueDate.value);
-      
+     
       currentDocument.customer = inputs.customerName.value.trim();
-      currentDocument.email = inputs.customerEmail.value.trim();
-      currentDocument.phone = inputs.customerPhone.value.trim();
+      currentDocument.email = encryptField(inputs.customerEmail.value.trim());
+      currentDocument.phone = encryptField(inputs.customerPhone.value.trim());
       currentDocument.issuerName = inputs.issuerName.value.trim();
       currentDocument.paymentMethod = inputs.paymentMethod.value;
       currentDocument.dueDate = inputs.dueDate.value;
       currentDocument.amountPaid = amountPaid;
       currentDocument.balance = balance;
       currentDocument.status = status;
-      currentDocument.notes = inputs.notes.value.trim();
+      currentDocument.notes = encryptField(inputs.notes.value.trim());
       currentDocument.items = getCurrentItems();
       currentDocument.subtotal = parseFloat(subtotalEl.textContent);
       currentDocument.totalTax = parseFloat(vatEl.textContent);
       currentDocument.total = total;
       currentDocument.lastModified = new Date();
-      
+     
       if (editingDocumentId) {
         await db.invoices.update(editingDocumentId, currentDocument);
-        
-        // Log audit trail for edits
+       
         await db.auditLog.add({
           documentId: editingDocumentId,
           action: `Updated - Status changed to ${status}`,
           timestamp: new Date(),
           userId: currentDocument.issuerName
         });
-        
+       
         alert('Document updated successfully!\nNew Status: ' + status.charAt(0).toUpperCase() + status.slice(1));
       } else {
         currentDocument.date = new Date();
         const docId = await db.invoices.add(currentDocument);
-        
-        // Log audit trail for new documents
+       
         await db.auditLog.add({
           documentId: docId,
           action: 'Created',
           timestamp: new Date(),
           userId: currentDocument.issuerName
         });
-        
+       
         alert('Document saved successfully!');
       }
-      
-      // Save/Update customer data for autocomplete
+     
       const existingCustomer = await db.customers.where('name').equals(currentDocument.customer).first();
+      const encryptedCustomer = {
+        name: currentDocument.customer,
+        phone: currentDocument.phone, // Already encrypted
+        email: currentDocument.email, // Already encrypted
+        lastTransaction: new Date()
+      };
       if (existingCustomer) {
-        await db.customers.update(existingCustomer.id, {
-          phone: currentDocument.phone,
-          email: currentDocument.email,
-          lastTransaction: new Date()
-        });
+        await db.customers.update(existingCustomer.id, encryptedCustomer);
       } else {
-        await db.customers.add({
-          name: currentDocument.customer,
-          phone: currentDocument.phone,
-          email: currentDocument.email,
-          lastTransaction: new Date()
-        });
+        await db.customers.add(encryptedCustomer);
       }
-      
+     
+      for (const item of currentDocument.items) {
+        if (item.quantity > 0) {
+          const invItem = await db.inventory.where('name').equals(item.description).first();
+          if (invItem) {
+            const newQty = invItem.quantity - item.quantity;
+            await db.inventory.update(invItem.id, { quantity: newQty });
+            await db.stockMovements.add({
+              inventoryId: invItem.id,
+              type: 'sale',
+              quantity: -item.quantity,
+              reference: currentDocument.number,
+              timestamp: new Date(),
+              userId: currentDocument.issuerName
+            });
+          }
+        }
+      }
+     
       saveInvoiceBtn.disabled = true;
       printPdfBtn.disabled = true;
       emailBtn.disabled = true;
@@ -1070,28 +1234,29 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAllInvoices();
       updateDashboard();
       await loadCustomerAutocomplete();
+      await loadInventorySelect();
+      await loadInventory();
     } catch (e) {
       alert('Error saving document: ' + e);
     }
   }
   saveInvoiceBtn.addEventListener('click', saveCurrentDocument);
-
   function printInvoice() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
       return;
     }
-    
+   
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+   
     let yPos = 20;
-    
+   
     doc.setFontSize(20);
     doc.setFont(undefined, 'bold');
     doc.text(settings.companyName, 105, yPos, { align: 'center' });
     yPos += 8;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     if (settings.companyAddress) {
@@ -1109,13 +1274,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       yPos += 5;
     }
-    
+   
     doc.setFontSize(16);
     doc.setFont(undefined, 'bold');
     const docTitle = currentDocument.type === 'quotation' ? 'QUOTATION' : 'INVOICE';
     doc.text(docTitle, 105, yPos, { align: 'center' });
     yPos += 10;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text(`${docTitle} #: ${currentDocument.number}`, 14, yPos);
@@ -1128,37 +1293,37 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.text(`Due Date: ${currentDocument.dueDate}`, 14, yPos);
     }
     yPos += 10;
-    
+   
     const leftCol = 14;
     const rightCol = 110;
-    
+   
     doc.setFont(undefined, 'bold');
     doc.text('BILL TO:', leftCol, yPos);
     doc.text('ISSUED BY:', rightCol, yPos);
     yPos += 6;
-    
+   
     doc.setFont(undefined, 'normal');
     doc.text(currentDocument.customer, leftCol, yPos);
     doc.text(currentDocument.issuerName, rightCol, yPos);
     yPos += 5;
-    
+   
     if (currentDocument.phone) {
-      doc.text(`Phone: ${currentDocument.phone}`, leftCol, yPos);
+      doc.text(`Phone: ${decryptField(currentDocument.phone)}`, leftCol, yPos);
     }
     yPos += 5;
-    
+   
     if (currentDocument.email) {
-      doc.text(`Email: ${currentDocument.email}`, leftCol, yPos);
+      doc.text(`Email: ${decryptField(currentDocument.email)}`, leftCol, yPos);
       yPos += 5;
     }
-    
+   
     if (currentDocument.paymentMethod) {
       doc.text(`Payment Method: ${currentDocument.paymentMethod}`, leftCol, yPos);
       yPos += 5;
     }
-    
+   
     yPos += 5;
-    
+   
     const tableData = currentDocument.items.map(item => {
       const vatAmount = (item.quantity * item.unitPrice * item.taxRate / 100);
       const lineTotal = (item.quantity * item.unitPrice + vatAmount);
@@ -1171,18 +1336,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'UGX ' + lineTotal.toFixed(2)
       ];
     });
-    
+   
     doc.autoTable({
       startY: yPos,
       head: [['Description', 'Qty', 'Unit Price', 'VAT Rate', 'VAT Amount', 'Total']],
       body: tableData,
       theme: 'grid',
-      headStyles: { 
-        fillColor: [102, 126, 234], 
+      headStyles: {
+        fillColor: [102, 126, 234],
         fontSize: 10,
         fontStyle: 'bold'
       },
-      bodyStyles: { 
+      bodyStyles: {
         fontSize: 10
       },
       columnStyles: {
@@ -1194,92 +1359,91 @@ document.addEventListener('DOMContentLoaded', () => {
         5: { cellWidth: 35, halign: 'right' }
       }
     });
-    
+   
     yPos = doc.lastAutoTable.finalY + 10;
     const totalsX = 140;
-    
+   
     doc.setFontSize(10);
     doc.text('Subtotal:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.subtotal.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 6;
-    
+   
     const discountVal = Number(inputs.discountValue.value) || 0;
     if (discountVal > 0) {
-      const discountAmount = inputs.discountType.value === 'percent' 
+      const discountAmount = inputs.discountType.value === 'percent'
         ? (currentDocument.subtotal * discountVal / 100)
         : discountVal;
-      const discountLabel = inputs.discountType.value === 'percent' 
+      const discountLabel = inputs.discountType.value === 'percent'
         ? `Discount (${discountVal}%):`
         : 'Discount:';
       doc.text(discountLabel, totalsX, yPos, { align: 'right' });
       doc.text('UGX ' + discountAmount.toFixed(2), 196, yPos, { align: 'right' });
       yPos += 6;
     }
-    
+   
     doc.text('Total VAT:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.totalTax.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 8;
-    
+   
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.text('GRAND TOTAL:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.total.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 8;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text('Amount Paid:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.amountPaid.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 6;
-    
+   
     doc.setFont(undefined, 'bold');
     doc.text('Balance Due:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.balance.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 10;
-    
+   
     doc.setFontSize(11);
     const statusText = 'Status: ' + currentDocument.status.charAt(0).toUpperCase() + currentDocument.status.slice(1);
     doc.text(statusText, 14, yPos);
     yPos += 10;
-    
+   
     if (currentDocument.notes && currentDocument.notes.trim()) {
       doc.setFontSize(10);
       doc.setFont(undefined, 'bold');
       doc.text('Notes:', 14, yPos);
       yPos += 5;
       doc.setFont(undefined, 'normal');
-      const splitNotes = doc.splitTextToSize(currentDocument.notes, 180);
+      const splitNotes = doc.splitTextToSize(decryptField(currentDocument.notes), 180);
       doc.text(splitNotes, 14, yPos);
       yPos += (splitNotes.length * 5);
     }
-    
+   
     if (yPos < 270) {
       yPos = 270;
     }
     doc.setFontSize(9);
     doc.setFont(undefined, 'italic');
     doc.text('Thank you for your business!', 105, yPos, { align: 'center' });
-    
+   
     doc.save(`${currentDocument.number}.pdf`);
   }
   printPdfBtn.addEventListener('click', printInvoice);
-
   function emailInvoice() {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
       return;
     }
-    if (!inputs.customerEmail.value.trim()) {
+    const decEmail = decryptField(currentDocument.email);
+    if (!decEmail) {
       alert('Enter customer email to send.');
       return;
     }
     const subject = encodeURIComponent(`Invoice ${currentDocument.number}`);
     const body = encodeURIComponent(invoiceSummary.textContent);
-    const mailto = `mailto:${inputs.customerEmail.value}?subject=${subject}&body=${body}`;
+    const mailto = `mailto:${decEmail}?subject=${subject}&body=${body}`;
     window.location.href = mailto;
   }
   emailBtn.addEventListener('click', emailInvoice);
-
   exportCsvBtn.addEventListener('click', () => {
     if (!currentDocument) {
       alert('Generate an invoice or quotation first.');
@@ -1301,7 +1465,6 @@ document.addEventListener('DOMContentLoaded', () => {
     a.click();
     URL.revokeObjectURL(url);
   });
-
   async function getCounter(type) {
     const counter = await db.counters.get(type);
     return counter ? counter.count : 0;
@@ -1312,13 +1475,17 @@ document.addEventListener('DOMContentLoaded', () => {
     await db.counters.put({ type, count: newCount });
     return newCount;
   }
-
   async function loadAllInvoices() {
-    const allInvoices = await db.invoices.toArray();
+    let allInvoices = await db.invoices.toArray();
+    allInvoices = allInvoices.map(inv => ({
+      ...inv,
+      email: decryptField(inv.email),
+      phone: decryptField(inv.phone),
+      notes: decryptField(inv.notes)
+    }));
     displayInvoices(allInvoices);
     reviewSection.style.display = 'none';
   }
-
   function matchesFilter(invoice, searchTerm, statusFilter, fromDate, toDate) {
     const term = searchTerm.toLowerCase();
     const invoiceDate = new Date(invoice.date);
@@ -1336,7 +1503,6 @@ document.addEventListener('DOMContentLoaded', () => {
       (!to || invoiceDate <= to);
     return matchesTerm && matchesStatus && matchesDate;
   }
-
   function displayInvoices(invoices) {
     invoiceListContainer.innerHTML = '';
     if (invoices.length === 0) {
@@ -1369,18 +1535,22 @@ document.addEventListener('DOMContentLoaded', () => {
       invoiceListContainer.appendChild(div);
     });
   }
-
   searchInvoiceBtn.addEventListener('click', async () => {
     const searchTerm = inputs.searchInvoiceNumber.value.trim();
     const status = filterStatus.value;
     const fromDateVal = dateFrom.value;
     const toDateVal = dateTo.value;
-    const allInvoices = await db.invoices.toArray();
+    let allInvoices = await db.invoices.toArray();
+    allInvoices = allInvoices.map(inv => ({
+      ...inv,
+      email: decryptField(inv.email),
+      phone: decryptField(inv.phone),
+      notes: decryptField(inv.notes)
+    }));
     const filtered = allInvoices.filter(inv => matchesFilter(inv, searchTerm, status, fromDateVal, toDateVal));
     displayInvoices(filtered);
     reviewSection.style.display = 'none';
   });
-
   clearSearchBtn.addEventListener('click', () => {
     inputs.searchInvoiceNumber.value = '';
     filterStatus.value = '';
@@ -1388,73 +1558,70 @@ document.addEventListener('DOMContentLoaded', () => {
     dateTo.value = '';
     loadAllInvoices();
   });
-
   function showInvoiceReview(invoice) {
-    reviewInvoiceSummary.textContent = generateSummaryText(invoice);
+    const decInvoice = {...invoice, email: decryptField(invoice.email), phone: decryptField(invoice.phone), notes: decryptField(invoice.notes)};
+    reviewInvoiceSummary.textContent = generateSummaryText(decInvoice);
     reviewQrCode.innerHTML = '';
     QRCode.toCanvas(reviewQrCode, `Invoice: ${invoice.number}\nTotal: UGX ${invoice.total.toFixed(2)}\nStatus: ${invoice.status}`, { width: 150 }, err => {
       if (err) console.error(err);
     });
     reviewSection.style.display = 'block';
-    currentDocument = invoice;
+    currentDocument = decInvoice;
     editingDocumentId = invoice.id;
     saveInvoiceBtn.disabled = true;
     printPdfBtn.disabled = true;
     emailBtn.disabled = true;
   }
-
   closeReviewBtn.addEventListener('click', () => {
     reviewSection.style.display = 'none';
     currentDocument = null;
     editingDocumentId = null;
   });
-
   editInvoiceBtn.addEventListener('click', () => {
     if (!currentDocument) return;
     reviewSection.style.display = 'none';
     itemsTableBody.innerHTML = '';
     editingDocumentId = currentDocument.id;
     inputs.customerName.value = currentDocument.customer;
-    inputs.customerEmail.value = currentDocument.email;
-    inputs.customerPhone.value = currentDocument.phone;
+    inputs.customerEmail.value = decryptField(currentDocument.email);
+    inputs.customerPhone.value = decryptField(currentDocument.phone);
     inputs.issuerName.value = currentDocument.issuerName;
     inputs.paymentMethod.value = currentDocument.paymentMethod;
     inputs.dueDate.value = currentDocument.dueDate || '';
     inputs.amountPaid.value = currentDocument.amountPaid.toFixed(2);
-    inputs.notes.value = currentDocument.notes;
+    inputs.notes.value = decryptField(currentDocument.notes);
     inputs.discountValue.value = '0';
     inputs.discountType.value = 'percent';
     currentDocument.items.forEach(item => addItem(item.description, item.quantity, item.unitPrice, item.taxRate));
     updateTotals();
-    
+   
     invoiceSummary.textContent = generateSummaryText(currentDocument);
     qrCodeDiv.innerHTML = '';
     QRCode.toCanvas(qrCodeDiv, `Invoice: ${currentDocument.number}\nTotal: UGX ${currentDocument.total.toFixed(2)}\nStatus: ${currentDocument.status}`, { width: 150 }, err => {
       if (err) console.error(err);
     });
-    
+   
     saveInvoiceBtn.disabled = false;
     printPdfBtn.disabled = false;
     emailBtn.disabled = !currentDocument.email;
     document.getElementById('tab-create').click();
   });
-
   printReviewBtn.addEventListener('click', () => {
     if (!currentDocument) {
       alert('Select a document first.');
       return;
     }
-    
+   
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+   
     let yPos = 20;
-    
+   
     doc.setFontSize(20);
     doc.setFont(undefined, 'bold');
     doc.text(settings.companyName, 105, yPos, { align: 'center' });
     yPos += 8;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     if (settings.companyAddress) {
@@ -1472,13 +1639,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       yPos += 5;
     }
-    
+   
     doc.setFontSize(16);
     doc.setFont(undefined, 'bold');
     const docTitle = currentDocument.type === 'quotation' ? 'QUOTATION' : 'INVOICE';
     doc.text(docTitle, 105, yPos, { align: 'center' });
     yPos += 10;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text(`${docTitle} #: ${currentDocument.number}`, 14, yPos);
@@ -1491,37 +1658,37 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.text(`Due Date: ${currentDocument.dueDate}`, 14, yPos);
     }
     yPos += 10;
-    
+   
     const leftCol = 14;
     const rightCol = 110;
-    
+   
     doc.setFont(undefined, 'bold');
     doc.text('BILL TO:', leftCol, yPos);
     doc.text('ISSUED BY:', rightCol, yPos);
     yPos += 6;
-    
+   
     doc.setFont(undefined, 'normal');
     doc.text(currentDocument.customer, leftCol, yPos);
     doc.text(currentDocument.issuerName, rightCol, yPos);
     yPos += 5;
-    
+   
     if (currentDocument.phone) {
-      doc.text(`Phone: ${currentDocument.phone}`, leftCol, yPos);
+      doc.text(`Phone: ${decryptField(currentDocument.phone)}`, leftCol, yPos);
     }
     yPos += 5;
-    
+   
     if (currentDocument.email) {
-      doc.text(`Email: ${currentDocument.email}`, leftCol, yPos);
+      doc.text(`Email: ${decryptField(currentDocument.email)}`, leftCol, yPos);
       yPos += 5;
     }
-    
+   
     if (currentDocument.paymentMethod) {
       doc.text(`Payment Method: ${currentDocument.paymentMethod}`, leftCol, yPos);
       yPos += 5;
     }
-    
+   
     yPos += 5;
-    
+   
     const tableData = currentDocument.items.map(item => {
       const vatAmount = (item.quantity * item.unitPrice * item.taxRate / 100);
       const lineTotal = (item.quantity * item.unitPrice + vatAmount);
@@ -1534,18 +1701,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'UGX ' + lineTotal.toFixed(2)
       ];
     });
-    
+   
     doc.autoTable({
       startY: yPos,
       head: [['Description', 'Qty', 'Unit Price', 'VAT Rate', 'VAT Amount', 'Total']],
       body: tableData,
       theme: 'grid',
-      headStyles: { 
-        fillColor: [102, 126, 234], 
+      headStyles: {
+        fillColor: [102, 126, 234],
         fontSize: 10,
         fontStyle: 'bold'
       },
-      bodyStyles: { 
+      bodyStyles: {
         fontSize: 10
       },
       columnStyles: {
@@ -1557,62 +1724,61 @@ document.addEventListener('DOMContentLoaded', () => {
         5: { cellWidth: 35, halign: 'right' }
       }
     });
-    
+   
     yPos = doc.lastAutoTable.finalY + 10;
     const totalsX = 140;
-    
+   
     doc.setFontSize(10);
     doc.text('Subtotal:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.subtotal.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 6;
-    
+   
     doc.text('Total VAT:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.totalTax.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 8;
-    
+   
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.text('GRAND TOTAL:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.total.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 8;
-    
+   
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text('Amount Paid:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.amountPaid.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 6;
-    
+   
     doc.setFont(undefined, 'bold');
     doc.text('Balance Due:', totalsX, yPos, { align: 'right' });
     doc.text('UGX ' + currentDocument.balance.toFixed(2), 196, yPos, { align: 'right' });
     yPos += 10;
-    
+   
     doc.setFontSize(11);
     const statusText = 'Status: ' + currentDocument.status.charAt(0).toUpperCase() + currentDocument.status.slice(1);
     doc.text(statusText, 14, yPos);
     yPos += 10;
-    
+   
     if (currentDocument.notes && currentDocument.notes.trim()) {
       doc.setFontSize(10);
       doc.setFont(undefined, 'bold');
       doc.text('Notes:', 14, yPos);
       yPos += 5;
       doc.setFont(undefined, 'normal');
-      const splitNotes = doc.splitTextToSize(currentDocument.notes, 180);
+      const splitNotes = doc.splitTextToSize(decryptField(currentDocument.notes), 180);
       doc.text(splitNotes, 14, yPos);
       yPos += (splitNotes.length * 5);
     }
-    
+   
     if (yPos < 270) {
       yPos = 270;
     }
     doc.setFontSize(9);
     doc.setFont(undefined, 'italic');
     doc.text('Thank you for your business!', 105, yPos, { align: 'center' });
-    
+   
     doc.save(`${currentDocument.number}.pdf`);
   });
-
   deleteInvoiceBtn.addEventListener('click', async () => {
     if (!currentDocument) return;
     if (!confirm(`Are you sure you want to delete document ${currentDocument.number}?`)) return;
@@ -1628,22 +1794,24 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Failed to delete document: ' + e);
     }
   });
-
   async function updateDashboard() {
-    const allInvoices = await db.invoices.toArray();
+    let allInvoices = await db.invoices.toArray();
+    allInvoices = allInvoices.map(inv => ({
+      ...inv,
+      email: decryptField(inv.email),
+      phone: decryptField(inv.phone),
+      notes: decryptField(inv.notes)
+    }));
     const paidInvoices = allInvoices.filter(inv => inv.status === 'paid' && inv.type === 'invoice');
     const pendingInvoices = allInvoices.filter(inv => (inv.status === 'pending' || inv.status === 'partial' || inv.status === 'overdue') && inv.type === 'invoice');
     const quotations = allInvoices.filter(inv => inv.type === 'quotation');
-
     const totalSales = paidInvoices.reduce((acc, inv) => acc + inv.total, 0);
     const pendingPayments = pendingInvoices.reduce((acc, inv) => acc + (inv.total - (inv.amountPaid || 0)), 0);
     const totalInvoices = allInvoices.filter(inv => inv.type === 'invoice').length;
-
     document.getElementById('statTotalSales').textContent = totalSales.toLocaleString() + ' UGX';
     document.getElementById('statPending').textContent = pendingPayments.toLocaleString() + ' UGX';
     document.getElementById('statInvoiceCount').textContent = totalInvoices.toString();
     document.getElementById('statQuotationCount').textContent = quotations.length.toString();
-
     const sortedRecent = allInvoices.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
     const recentDiv = document.getElementById('recentInvoices');
     recentDiv.innerHTML = '';
@@ -1677,36 +1845,262 @@ document.addEventListener('DOMContentLoaded', () => {
       recentDiv.appendChild(div);
     });
   }
-
-  loadSettings();
-  clearForm();
-  loadCustomerAutocomplete();
-  
-  // Load customer autocomplete data
   async function loadCustomerAutocomplete() {
-    const customers = await db.customers.orderBy('lastTransaction').reverse().toArray();
+    let customers = await db.customers.orderBy('lastTransaction').reverse().toArray();
+    customers = customers.map(cust => ({
+      ...cust,
+      phone: decryptField(cust.phone),
+      email: decryptField(cust.email)
+    }));
     const datalist = document.getElementById('customerList');
     datalist.innerHTML = '';
     customers.forEach(customer => {
       const option = document.createElement('option');
       option.value = customer.name;
-      option.setAttribute('data-phone', customer.phone);
-      option.setAttribute('data-email', customer.email);
+      option.setAttribute('data-phone', customer.phone || '');
+      option.setAttribute('data-email', customer.email || '');
       datalist.appendChild(option);
     });
   }
-  
-  // Auto-fill customer details when selected from list
   inputs.customerName.addEventListener('input', async () => {
     const selectedName = inputs.customerName.value;
-    const customer = await db.customers.where('name').equals(selectedName).first();
+    let customer = await db.customers.where('name').equals(selectedName).first();
     if (customer) {
+      customer = {
+        ...customer,
+        phone: decryptField(customer.phone),
+        email: decryptField(customer.email)
+      };
       inputs.customerPhone.value = customer.phone || '';
       inputs.customerEmail.value = customer.email || '';
       validateContact();
     }
   });
+  async function loadInventorySelect() {
+    const inventory = await db.inventory.toArray();
+    const select = document.getElementById('inventorySelect');
+    select.innerHTML = '<option value="">-- Select Product --</option>';
+    inventory.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = `${item.name} (SKU: ${item.sku}) - Stock: ${item.quantity}`;
+      option.setAttribute('data-price', item.unitPrice);
+      option.setAttribute('data-description', item.name);
+      select.appendChild(option);
+    });
+    select.addEventListener('change', async (e) => {
+      const selectedId = e.target.value;
+      if (selectedId) {
+        const item = await db.inventory.get(selectedId);
+        if (item) {
+          await addItem(item.name, 1, item.unitPrice, 0);
+          e.target.value = '';
+        }
+      }
+    });
+  }
+  async function loadInventory() {
+    const inventory = await db.inventory.toArray();
+    const totalProducts = inventory.length;
+    const lowStock = inventory.filter(i => i.quantity <= i.minStock && i.quantity > 0).length;
+    const outOfStock = inventory.filter(i => i.quantity === 0).length;
+    const totalValue = inventory.reduce((sum, i) => sum + (i.quantity * i.unitPrice), 0);
+    
+    document.getElementById('statTotalProducts').textContent = totalProducts;
+    document.getElementById('statLowStock').textContent = lowStock;
+    document.getElementById('statOutOfStock').textContent = outOfStock;
+    document.getElementById('statInventoryValue').textContent = totalValue.toLocaleString() + ' UGX';
+    
+    const container = document.getElementById('inventoryListContainer');
+    container.innerHTML = inventory.map(item => `
+      <div class="invoice-item" data-id="${item.id}" style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;">
+        <div>${item.name} (SKU: ${item.sku}) - Category: ${item.category}</div>
+        <div style="text-align: center;">Stock: ${item.quantity} (Min: ${item.minStock})</div>
+        <div>
+          <button class="btn-secondary edit-btn" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">Edit</button>
+          <button class="btn-success restock-btn" style="padding: 5px 10px; font-size: 12px;">Restock</button>
+        </div>
+      </div>
+    `).join('');
 
+    container.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => editInventory(parseInt(btn.closest('.invoice-item').dataset.id)));
+    });
+    container.querySelectorAll('.restock-btn').forEach(btn => {
+      btn.addEventListener('click', () => restockInventory(parseInt(btn.closest('.invoice-item').dataset.id)));
+    });
+
+    document.getElementById('searchInventory').addEventListener('input', filterInventory);
+    document.getElementById('filterCategory').addEventListener('change', filterInventory);
+  }
+  function filterInventory() {
+    const searchTerm = document.getElementById('searchInventory').value.toLowerCase();
+    const category = document.getElementById('filterCategory').value;
+    const items = document.querySelectorAll('#inventoryListContainer .invoice-item');
+    items.forEach(item => {
+      const name = item.querySelector('div').textContent.toLowerCase();
+      const matchesSearch = name.includes(searchTerm);
+      const matchesCat = !category || item.textContent.toLowerCase().includes(category.toLowerCase());
+      item.style.display = (matchesSearch && matchesCat) ? 'grid' : 'none';
+    });
+  }
+  async function editInventory(id) {
+    const item = await db.inventory.get(id);
+    if (item) {
+      document.getElementById('inventoryModalLabel').textContent = 'Edit Product';
+      document.getElementById('productSku').value = item.sku;
+      document.getElementById('productName').value = item.name;
+      document.getElementById('productCategory').value = item.category;
+      document.getElementById('productQuantity').value = item.quantity;
+      document.getElementById('productMinStock').value = item.minStock;
+      document.getElementById('productCost').value = item.unitCost || 0;
+      document.getElementById('productPrice').value = item.unitPrice;
+      document.getElementById('inventoryModal').style.display = 'block';
+      const saveBtn = document.getElementById('saveInventoryBtn');
+      const originalOnclick = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        const updatedItem = {
+          sku: document.getElementById('productSku').value,
+          name: document.getElementById('productName').value,
+          category: document.getElementById('productCategory').value,
+          quantity: parseInt(document.getElementById('productQuantity').value),
+          minStock: parseInt(document.getElementById('productMinStock').value),
+          unitCost: parseFloat(document.getElementById('productCost').value),
+          unitPrice: parseFloat(document.getElementById('productPrice').value),
+          lastRestocked: new Date()
+        };
+        await db.inventory.update(id, updatedItem);
+        document.getElementById('inventoryModal').style.display = 'none';
+        saveBtn.onclick = originalOnclick;
+        await loadInventory();
+        await loadInventorySelect();
+      };
+    }
+  }
+  async function restockInventory(id) {
+    const item = await db.inventory.get(id);
+    if (item) {
+      document.getElementById('restockProductInfo').innerHTML = `<strong>${item.name}</strong><br>Current Stock: ${item.quantity}`;
+      document.getElementById('restockModal').style.display = 'block';
+      const confirmBtn = document.getElementById('confirmRestockBtn');
+      const originalOnclick = confirmBtn.onclick;
+      confirmBtn.onclick = async () => {
+        const qtyToAdd = parseInt(document.getElementById('restockQuantity').value);
+        if (qtyToAdd <= 0) return alert('Quantity must be > 0');
+        const newQty = item.quantity + qtyToAdd;
+        await db.inventory.update(id, { quantity: newQty, lastRestocked: new Date() });
+        const notes = document.getElementById('restockNotes').value;
+        await db.stockMovements.add({
+          inventoryId: id,
+          type: 'restock',
+          quantity: qtyToAdd,
+          reference: notes || 'Manual restock',
+          timestamp: new Date(),
+          userId: settings.companyName
+        });
+        document.getElementById('restockModal').style.display = 'none';
+        confirmBtn.onclick = originalOnclick;
+        await loadInventory();
+        await loadInventorySelect();
+      };
+    }
+  }
+  document.getElementById('addInventoryBtn').addEventListener('click', () => {
+    document.getElementById('inventoryModalLabel').textContent = 'Add Product';
+    ['productSku', 'productName', 'productQuantity', 'productMinStock', 'productCost', 'productPrice'].forEach(id => 
+      document.getElementById(id).value = id.includes('Quantity') || id.includes('Cost') || id.includes('Price') ? '0' : ''
+    );
+    document.getElementById('inventoryModal').style.display = 'block';
+    const saveBtn = document.getElementById('saveInventoryBtn');
+    const originalOnclick = saveBtn.onclick;
+    saveBtn.onclick = async () => {
+      const newItem = {
+        sku: document.getElementById('productSku').value,
+        name: document.getElementById('productName').value,
+        category: document.getElementById('productCategory').value,
+        quantity: parseInt(document.getElementById('productQuantity').value),
+        minStock: parseInt(document.getElementById('productMinStock').value),
+        unitCost: parseFloat(document.getElementById('productCost').value),
+        unitPrice: parseFloat(document.getElementById('productPrice').value),
+        lastRestocked: new Date()
+      };
+      await db.inventory.add(newItem);
+      document.getElementById('inventoryModal').style.display = 'none';
+      saveBtn.onclick = originalOnclick;
+      await loadInventory();
+      await loadInventorySelect();
+    };
+  });
+  document.getElementById('cancelInventoryBtn').addEventListener('click', () => {
+    document.getElementById('saveInventoryBtn').onclick = null;
+    document.getElementById('inventoryModal').style.display = 'none';
+  });
+  document.getElementById('closeInventoryModal').addEventListener('click', () => {
+    document.getElementById('saveInventoryBtn').onclick = null;
+    document.getElementById('inventoryModal').style.display = 'none';
+  });
+  document.getElementById('cancelRestockBtn').addEventListener('click', () => {
+    document.getElementById('confirmRestockBtn').onclick = null;
+    document.getElementById('restockModal').style.display = 'none';
+  });
+  document.getElementById('closeRestockModal').addEventListener('click', () => {
+    document.getElementById('confirmRestockBtn').onclick = null;
+    document.getElementById('restockModal').style.display = 'none';
+  });
+  window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('inventoryModal')) {
+      document.getElementById('inventoryModal').style.display = 'none';
+      document.getElementById('saveInventoryBtn').onclick = null;
+    }
+    if (e.target === document.getElementById('restockModal')) {
+      document.getElementById('restockModal').style.display = 'none';
+      document.getElementById('confirmRestockBtn').onclick = null;
+    }
+  });
+  // Export/Import Functionality
+  exportDataBtn.addEventListener('click', async () => {
+    const tables = ['invoices', 'settings', 'counters', 'customers', 'auditLog', 'inventory', 'stockMovements'];
+    const data = {};
+    for (const table of tables) {
+      data[table] = await db[table].toArray();
+    }
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice_db_backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+  importDataBtn.addEventListener('click', () => {
+    importDataInput.click();
+  });
+  importDataInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        for (const table in data) {
+          await db[table].clear();
+          await db[table].bulkAdd(data[table]);
+        }
+        alert('Data imported successfully!');
+        location.reload(); // Reload to apply changes
+      } catch (err) {
+        alert('Import failed: ' + err);
+      }
+    };
+    reader.readAsText(file);
+  });
+  await loadSettings();
+  clearForm();
+  await loadCustomerAutocomplete();
+  await loadInventorySelect();
+  await loadInventory();
+  await loadAllInvoices();
+  await updateDashboard();
 });
 </script>
 </body>
