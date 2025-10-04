@@ -265,6 +265,39 @@
     .form-row { grid-template-columns: 1fr; }
     .container { padding: 20px; }
     .stats-grid { grid-template-columns: 1fr; }
+    #itemsTable {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .actions {
+      flex-direction: column;
+      gap: 5px;
+    }
+    button {
+      width: 100%;
+      margin-right: 0;
+    }
+    .modal-content {
+      width: 95%;
+      max-width: none;
+      padding: 20px;
+    }
+    .tabs {
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tab {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    input, select, textarea {
+      font-size: 16px; /* Better for touch */
+    }
+    th, td {
+      padding: 8px 6px;
+      font-size: 13px;
+    }
   }
 </style>
 </head>
@@ -658,7 +691,12 @@ function decryptField(encryptedValue) {
     const bytes = CryptoJS.AES.decrypt(encryptedValue, passphrase);
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch (e) {
-    alert('Decryption failed - wrong passphrase?');
+    if (confirm('Decryption failed - wrong passphrase? Clear database to reset?')) {
+      db.delete().then(() => {
+        alert('Database cleared. Reloading app...');
+        location.reload();
+      });
+    }
     return '';
   }
 }
